@@ -1,6 +1,13 @@
 module Main where
 
-import Lib
+import ContribSwizard
 
+header :: IO ()
+header =
+    putStrLn "Team Skobochka Members"
+    
 main :: IO ()
-main = someFunc
+main =
+    sequence_ [ header
+              , printSwizard
+              ]
