@@ -25,6 +25,12 @@ allowedPair SouthToNorth NorthToSouth = True
 allowedPair SouthToNorth NorthToWest = True
 allowedPair SouthToNorth WestToSouth = True
 allowedPair SouthToNorth _ = False
+allowedPair SouthToEast SouthToWest = True
+allowedPair SouthToEast SouthToNorth = True
+allowedPair SouthToEast EastToNorth = True
+allowedPair SouthToEast NorthToEast = True
+allowedPair SouthToEast WestToSouth = True
+allowedPair SouthToEast _ = False
 allowedPair _ _ = False
 
 
