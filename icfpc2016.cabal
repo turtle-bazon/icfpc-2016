@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     ContribSwizard ContribSectoid ContribTurtle
+  exposed-modules:     ContribSwizard ContribSectoid ContribTurtle ContribFedor
   build-depends:       base >= 4.7 && < 5
   default-language:    Haskell2010
 

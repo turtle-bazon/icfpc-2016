@@ -1,5 +1,5 @@
 module ContribSectoid (printSectoid) where
 
-printSectoid :: IO ()
+printSectoid :: String
 printSectoid =
-    putStrLn "* Gleb Golubitsky (sectoid);"
+    "* Gleb Golubitsky (sectoid);"

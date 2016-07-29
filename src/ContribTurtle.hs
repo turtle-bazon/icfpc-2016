@@ -1,5 +1,5 @@
 module ContribTurtle (printTurtle) where
 
-printTurtle :: IO ()
+printTurtle :: String
 printTurtle =
-    putStrLn "* Azamat S. Kalimoulline (turtle);"
+    "* Azamat S. Kalimoulline (turtle);"

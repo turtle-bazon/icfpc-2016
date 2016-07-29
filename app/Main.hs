@@ -3,15 +3,18 @@ module Main where
 import ContribSwizard
 import ContribSectoid
 import ContribTurtle
+import ContribFedor
 
-header :: IO ()
+header :: String
 header =
-    putStrLn "Team Skobochka Members"
+	"Team Skobochka Members"
 
-main :: IO ()
-main =
-    sequence_ [ header
-              , printSwizard
-              , printSectoid
-              , printTurtle
-              ]
+main :: IO [()]
+main = do
+    mapM putStrLn [ header 
+                  , printSwizard
+                  , printSectoid
+                  , printTurtle
+                  , printFedor
+                  ]
+

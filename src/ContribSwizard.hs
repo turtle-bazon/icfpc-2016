@@ -1,5 +1,5 @@
 module ContribSwizard (printSwizard) where
 
-printSwizard :: IO ()
+printSwizard :: String
 printSwizard =
-    putStrLn "* Alexey Voznyuk (swizard);"
+    "* Alexey Voznyuk (swizard);"
