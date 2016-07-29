@@ -1,5 +1,5 @@
-module ContribFedor (printFedor) where
+module ContribFedor (fedor) where
 
-printFedor :: String
-printFedor =
-	"* Fedor Shashin;"
+import Developer
+
+fedor = Developer "fedor" "Fedor Shashin"

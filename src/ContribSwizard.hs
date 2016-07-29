@@ -1,5 +1,5 @@
-module ContribSwizard (printSwizard) where
+module ContribSwizard (swizard) where
 
-printSwizard :: String
-printSwizard =
-    "* Alexey Voznyuk (swizard);"
+import Developer
+
+swizard = Developer "swizard" "Alexey Voznyuk"

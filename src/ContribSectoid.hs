@@ -1,5 +1,5 @@
-module ContribSectoid (printSectoid) where
+module ContribSectoid (sectoid) where
 
-printSectoid :: String
-printSectoid =
-    "* Gleb Golubitsky (sectoid);"
+import Developer
+
+sectoid = Developer "sectoid" "Gleb Golubitsky"

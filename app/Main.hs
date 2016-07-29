@@ -1,5 +1,6 @@
 module Main where
 
+import Developer
 import ContribSwizard
 import ContribSectoid
 import ContribTurtle
@@ -9,12 +10,12 @@ header :: String
 header =
 	"Team Skobochka Members"
 
-main :: IO [()]
+developers = [swizard, sectoid, turtle, fedor]
+
+developerLine :: Developer -> String
+developerLine developer = "* " ++ fullName developer ++ " (" ++ name developer ++ ");"
+
+main :: IO ()
 main = do
-    mapM putStrLn [ header 
-                  , printSwizard
-                  , printSectoid
-                  , printTurtle
-                  , printFedor
-                  ]
+    mapM_ putStrLn $ header : map developerLine developers
 

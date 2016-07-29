@@ -1,5 +1,5 @@
-module ContribTurtle (printTurtle) where
+module ContribTurtle (turtle) where
 
-printTurtle :: String
-printTurtle =
-    "* Azamat S. Kalimoulline (turtle);"
+import Developer
+
+turtle = Developer "turtle" "Azamat S. Kalimoulline"
