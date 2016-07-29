@@ -2,6 +2,7 @@ module Main where
 
 import ContribSwizard
 import ContribSectoid
+import ContribTurtle
 
 header :: IO ()
 header =
@@ -12,4 +13,5 @@ main =
     sequence_ [ header
               , printSwizard
               , printSectoid
+              , printTurtle
               ]
