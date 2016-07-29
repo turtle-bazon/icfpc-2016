@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Developer ContribSwizard ContribSectoid ContribTurtle ContribFedor
+  exposed-modules:     TrafficLight
   build-depends:       base >= 4.7 && < 5
   default-language:    Haskell2010
 
