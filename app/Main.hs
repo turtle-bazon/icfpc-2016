@@ -13,7 +13,7 @@ header =
 developers = [swizard, sectoid, turtle, fedor]
 
 developerLine :: Developer -> String
-developerLine developer = "* " ++ fullName developer ++ " (" ++ name developer ++ ");"
+developerLine developer = "* " ++ show developer ++ ";"
 
 main :: IO ()
 main = do
