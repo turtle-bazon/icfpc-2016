@@ -16,6 +16,7 @@ data Direction
 
 
 allowedPair :: Direction -> Direction -> Bool
+allowedPair SouthToEast NorthToEast = False
 allowedPair SouthToEast WestToEast = False
 allowedPair SouthToEast _ = True
 allowedPair SouthToNorth SouthToEast = True
