@@ -3,6 +3,7 @@ Team Skobochka Members
 
 * Gleb Golubitsky (sectoid);
 * Azamat S. Kalimoulline (turtle);
+* Alexey Voznuyk (swizard);
 
 Building & running
 ==================
