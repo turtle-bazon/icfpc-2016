@@ -16,7 +16,7 @@ data Disposition = Parallel | Crossing deriving (Eq, Show)
 data Flow = Flow { route :: Route, amount :: Int, throughput :: Int } deriving (Eq, Show)
 
 type Config = [Flow]
-          
+
 direction :: Route -> Maybe Direction
 direction (Route South East) = Just TurnRight
 direction (Route South North) = Just Forward
@@ -85,9 +85,12 @@ isCrossing (Move (Route srcA _) dirA) (Move (Route srcB _) dirB) =
       (Crossing, TurnLeft, TurnLeft) -> True
       _ -> False
 
-allowedConfigs :: [[Move]]
+allowedConfigs :: [[Route]]
 allowedConfigs =
-    filter (not . containsCrossing) $ subsequences possibleMoves
+    map routes $ filter (not . containsCrossing) $ subsequences possibleMoves
+        where
+          routes = map route
+          route (Move r _) = r
 
 fromInput :: [(Int, Int)] -> Config
 fromInput = zipWith makeFlow possibleMoves
@@ -103,7 +106,4 @@ sampleInput =
 
 printTraffic :: IO ()
 printTraffic =
-    mapM_ putStrLn $ map (show . routes) allowedConfigs
-        where
-          routes = map route
-          route (Move r _) = r
+    mapM_ putStrLn $ map show allowedConfigs
