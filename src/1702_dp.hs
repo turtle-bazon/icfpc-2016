@@ -2,7 +2,9 @@ module Main where
 
 import Data.Maybe
 import Data.List
--- import Data.Ord (comparing)
+import Data.Ord (comparing)
+
+sortOn f = map snd . sortBy (comparing fst) . map (\x -> let y = f x in y `seq` (y, x))
 
 data Side = West | North | East | South deriving (Eq, Show)
 
@@ -120,14 +122,20 @@ trafficRun duration lights = map runLights
       decr flow = flow { amount = (amount flow) - (totalThroughput flow) }
       totalThroughput flow = duration * (throughput flow)
 
--- sortOn f = map snd . sortBy (comparing fst) . map (\x -> let y = f x in y `seq` (y, x))
-
 sortLights :: Config -> Int -> [GreenLights] -> [GreenLights]
 sortLights cfg duration =
     map fst . sortOn rateLights . map runWithLights
         where
           runWithLights lights = (lights, trafficRun duration lights cfg)
-          rateLights (_, cfg) = totalAmount cfg
+          rateLights (_, cfg) = (slowestRouteFactor cfg, totalAmount cfg)
+
+slowestRouteFactor :: Config -> Float
+slowestRouteFactor =
+    head . reverse . sort . map pseudoFactor
+        where
+          pseudoFactor flow | factor flow < 1.0 = 0
+          pseudoFactor flow = factor flow
+          factor flow = (fromIntegral $ amount flow) / (fromIntegral $ throughput flow)
 
 solutionStep :: DpTable -> Int -> DpTable
 solutionStep dpTable maxDuration =
