@@ -1,5 +1,6 @@
 module SolutionDP where
 
+import Data.List
 import TrafficLight
 
 type States = [Config]
@@ -18,6 +19,13 @@ trafficRun duration lights = map runLights
       decr flow | amount flow < totalThroughput flow = flow { amount = 0 }
       decr flow = flow { amount = (amount flow) - (totalThroughput flow) }
       totalThroughput flow = duration * (throughput flow)
+
+sortLights :: Config -> Int -> [GreenLights] -> [GreenLights]
+sortLights cfg duration =
+    map fst . sortOn rateLights . map runWithLights
+        where
+          runWithLights lights = (lights, trafficRun duration lights cfg)
+          rateLights (_, cfg) = totalAmount cfg
 
 solution :: Config -> Int
 solution cfg =
