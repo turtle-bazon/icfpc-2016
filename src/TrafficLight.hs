@@ -13,6 +13,8 @@ data Move = Move Route Direction deriving (Eq, Show)
 
 data Disposition = Parallel | Crossing deriving (Eq, Show)
 
+data Flow = Flow { route :: Route, amount :: Int, throughput :: Int } deriving (Eq, Show)
+
 direction :: Route -> Maybe Direction
 direction (Route South East) = Just TurnRight
 direction (Route South North) = Just Forward
@@ -41,8 +43,19 @@ disposition _ _ = Parallel
 
 possibleRoutes :: [Route]
 possibleRoutes = do
-  src <- [West, North, East, South]
-  dst <- [West, North, East, South]
+  (src, dst) <- [ (South, East)
+                , (South, North)
+                , (South, West)
+                , (East, North)
+                , (East, West)
+                , (East, South)
+                , (North, West)
+                , (North, South)
+                , (North, East)
+                , (West, South)
+                , (West, East)
+                , (West, North)
+                ]
   return $ Route src dst
 
 routeDirection :: Route -> Maybe Move
@@ -73,6 +86,18 @@ isCrossing (Move (Route srcA _) dirA) (Move (Route srcB _) dirB) =
 allowedConfigs :: [[Move]]
 allowedConfigs =
     filter (not . containsCrossing) $ subsequences possibleMoves
+
+fromInput :: [(Int, Int)] -> [Flow]
+fromInput = zipWith makeFlow possibleMoves
+    where makeFlow (Move route _) (amount, throughput) =
+              Flow { route = route, amount = amount, throughput = throughput }
+
+sampleInput :: [Flow]
+sampleInput =
+    fromInput $ zipWith (,) amounts throughputs
+        where
+          amounts = [2, 0, 0, 14, 13, 0, 20, 0, 0, 0, 60, 7]
+          throughputs = [1, 1, 1, 1, 3, 1, 2, 1, 1, 1, 5, 1]
 
 printTraffic :: IO ()
 printTraffic =
