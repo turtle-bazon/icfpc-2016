@@ -29,6 +29,7 @@ sortLights cfg duration =
           runWithLights lights = (lights, trafficRun duration lights cfg)
           rateLights (_, cfg) = totalAmount cfg
 
+solutionStep :: DpTable -> Int -> DpTable
 solutionStep dpTable maxDuration =
     dpTable ++ [bestDpStep]
         where
@@ -57,3 +58,22 @@ answerDp = head . reverse . sort . map amount . config . last
 
 solution :: Config -> Int
 solution = answerDp . solutionDp
+
+ppSolution :: Config -> IO ()
+ppSolution cfg = do
+  putStrLn $ "Answer is: " ++ (show $ answerDp dpTable)
+  mapM_ ppStep actualSteps
+    where
+      ppStep step =
+          putStrLn $ "For " ++ (show $ duration step) ++ " minutes green lights for: " ++ (show $ lights step)
+      actualSteps = collectSteps 0 []
+      dpTable = solutionDp cfg
+      dpTableSize = (length dpTable) - 1
+      collectSteps minutes acc | minutes == dpTableSize = acc
+      collectSteps minutes acc =
+          let
+              index = dpTableSize - minutes
+              step = dpTable !! index
+              spend = minutes + (duration step)
+          in
+            collectSteps spend $ step : acc
