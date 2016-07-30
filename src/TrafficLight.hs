@@ -15,6 +15,8 @@ data Disposition = Parallel | Crossing deriving (Eq, Show)
 
 data Flow = Flow { route :: Route, amount :: Int, throughput :: Int } deriving (Eq, Show)
 
+type Config = [Flow]
+          
 direction :: Route -> Maybe Direction
 direction (Route South East) = Just TurnRight
 direction (Route South North) = Just Forward
@@ -87,12 +89,12 @@ allowedConfigs :: [[Move]]
 allowedConfigs =
     filter (not . containsCrossing) $ subsequences possibleMoves
 
-fromInput :: [(Int, Int)] -> [Flow]
+fromInput :: [(Int, Int)] -> Config
 fromInput = zipWith makeFlow possibleMoves
     where makeFlow (Move route _) (amount, throughput) =
               Flow { route = route, amount = amount, throughput = throughput }
 
-sampleInput :: [Flow]
+sampleInput :: Config
 sampleInput =
     fromInput $ zipWith (,) amounts throughputs
         where
