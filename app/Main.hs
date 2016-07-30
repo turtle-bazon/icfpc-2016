@@ -8,4 +8,4 @@ main = do
   putStrLn "Configuration:"
   mapM_ putStrLn $ map show sampleInput
   putStrLn ""
-  putStrLn $ "Solution: " ++ show (solution sampleInput)
+  ppSolution sampleInput
