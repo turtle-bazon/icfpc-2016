@@ -2,6 +2,7 @@ module Main where
 
 import qualified Data.ByteString.Char8 as B
 import Data.Maybe (isNothing, isJust, fromJust)
+import Data.List (intersect)
 
 -------------------------------------------------------------------------------
 
@@ -52,9 +53,18 @@ hasBadPairInList x (y:ys) =
 	if badPair x y then True
 	else hasBadPairInList x ys
 
+
+contained :: [Int] -> [[Int]] -> Bool
+contained xs ys =
+	or $ map (\y -> xs /= y && xs == intersect xs y ) ys
+
 getGoodPermutations :: [[Int]]
 getGoodPermutations =
-	filter (\p -> not $ permutationIsBad p ) genPermutataions
+	let
+		good_permutations = filter (\p -> not $ permutationIsBad p ) genPermutataions
+		big_permutations = filter (\p -> not $ contained p good_permutations) good_permutations
+	in 
+		big_permutations
 
 
 solve ns vs ps 11 = (maximum ns, ns)
@@ -92,7 +102,7 @@ run in0 =
 		ns = map (fst . fromJust . B.readInt) $  B.words $ l1
 		vs = map (fst . fromJust . B.readInt) $  B.words $ l2
 	in
-		show $ solve ns vs getGoodPermutations 1
+		show $ fst $ solve ns vs getGoodPermutations 1
 
 main :: IO ()
 main = getContents >>= putStrLn . run . B.lines . bp
