@@ -37,11 +37,12 @@ solutionStep dpTable maxDuration =
           backSteps = reverse [1 .. maxDuration]
           step duration = mkDpStep duration (prevCfg duration) $ head $ sortLights (prevCfg duration) duration allowedGreenLights
           mkDpStep duration cfg lights =
-              DpStep { config = trafficRun duration lights cfg
-                     , lights = lights
-                     , duration = duration
-                     , cost = totalAmount $ trafficRun duration lights cfg
-                     }
+              let nextConfig = trafficRun duration lights cfg
+              in DpStep { config = nextConfig
+                        , lights = lights
+                        , duration = duration
+                        , cost = totalAmount $ nextConfig
+                        }
           prevCfg duration = config $ dpTable !! (maxDuration - duration)
           dpSteps = possibleSteps
           bestDpStep = head $ sortOn (totalAmount . config) dpSteps
@@ -62,10 +63,16 @@ solution = answerDp . solutionDp
 ppSolution :: Config -> IO ()
 ppSolution cfg = do
   putStrLn $ "Answer is: " ++ (show $ answerDp dpTable)
+  putStrLn $ "Total cars waiting at start: " ++ (show $ totalAmount cfg)
   mapM_ ppStep actualSteps
     where
       ppStep step =
-          putStrLn $ "For " ++ (show $ duration step) ++ " minutes green lights for: " ++ (show $ lights step)
+          putStrLn $ "For "
+                       ++ (show $ duration step)
+                       ++ " minutes green lights for: "
+                       ++ (show $ lights step)
+                       ++ ", now cars waiting: "
+                       ++ (show $ cost step)
       actualSteps = collectSteps 0 []
       dpTable = solutionDp cfg
       dpTableSize = (length dpTable) - 1

@@ -106,6 +106,13 @@ sampleInput =
           amounts = [2, 0, 0, 14, 13, 0, 20, 0, 0, 0, 60, 7]
           throughputs = [1, 1, 1, 1, 3, 1, 2, 1, 1, 1, 5, 1]
 
+sampleInputErrA :: Config
+sampleInputErrA =
+    fromInput $ zipWith (,) amounts throughputs
+        where
+          amounts = [601, 782, 931, 916, 88, 51, 629, 36, 274, 838, 975, 193]
+          throughputs = [481, 764, 552, 204, 696, 416, 725, 272, 43, 123, 644, 268]
+
 printTraffic :: IO ()
 printTraffic =
     mapM_ putStrLn $ map show allowedGreenLights
