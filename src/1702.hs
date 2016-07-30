@@ -1,4 +1,15 @@
-module Training where
+module Main where
+
+import qualified Data.ByteString.Char8 as B
+import Data.Maybe (isNothing, isJust, fromJust)
+
+-------------------------------------------------------------------------------
+
+bp = B.pack
+bu = B.unpack
+nlines = splitAt
+line ls = let (x,xs) = nlines 1 ls in (head x, xs)
+
 
 route1 = [9, 11]
 route2 = [4, 5, 6, 9, 11, 12]
@@ -44,3 +55,44 @@ hasBadPairInList x (y:ys) =
 getGoodPermutations :: [[Int]]
 getGoodPermutations =
 	filter (\p -> not $ permutationIsBad p ) genPermutataions
+
+
+solve ns vs ps 11 = (maximum ns, ns)
+solve ns vs ps step = 
+	let
+		max_queue_len = maximum ns
+		longest_queues =  map snd $ filter (\(l,n) -> l == max_queue_len ) (zip ns [1..12])
+		permutations_for_longest_queues = filter (\p -> any (\lq -> elem lq p) longest_queues) ps
+		best_permutation_capacity = maximum $ map (permutation_capacity vs) permutations_for_longest_queues		
+		--best_permutations = filter (\p -> best_permutation_capacity == permutation_capacity vs p ) permutations_for_longest_queues
+		best_permutations = permutations_for_longest_queues
+		results = map (\bp -> solve (apply_permutation ns vs bp) vs ps (step+1)) best_permutations
+		best_result = foldl (\(val,r) -> \(val',r') -> if val < val' then (val,r) else (val',r')  ) (1000000,[]) results
+	in
+		best_result
+	
+permutation_capacity vs p =
+	sum $ map (\route_n -> vs!!(route_n-1)) p
+
+apply_permutation ns vs ps = 
+	apply_perm (zip ns [1..12]) vs ps
+
+apply_perm [] vs ps = []
+apply_perm ((n,pos):ns) vs ps =
+	if elem pos ps then (n - vs!!(pos-1)) : rest_result
+	else n : rest_result
+	where
+		rest_result = apply_perm ns vs ps
+
+run :: [B.ByteString] -> String
+run in0 =
+	let
+		(l1, in1) = line in0
+		(l2, in2) = line in1
+		ns = map (fst . fromJust . B.readInt) $  B.words $ l1
+		vs = map (fst . fromJust . B.readInt) $  B.words $ l2
+	in
+		show $ solve ns vs getGoodPermutations 1
+
+main :: IO ()
+main = getContents >>= putStrLn . run . B.lines . bp
