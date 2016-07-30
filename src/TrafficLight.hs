@@ -17,6 +17,8 @@ data Flow = Flow { route :: Route, amount :: Int, throughput :: Int } deriving (
 
 type Config = [Flow]
 
+type GreenLights = [Route]
+
 direction :: Route -> Maybe Direction
 direction (Route South East) = Just TurnRight
 direction (Route South North) = Just Forward
@@ -85,8 +87,8 @@ isCrossing (Move (Route srcA _) dirA) (Move (Route srcB _) dirB) =
       (Crossing, TurnLeft, TurnLeft) -> True
       _ -> False
 
-allowedConfigs :: [[Route]]
-allowedConfigs =
+allowedGreenLights :: [GreenLights]
+allowedGreenLights =
     map routes $ filter (not . containsCrossing) $ subsequences possibleMoves
         where
           routes = map route
@@ -106,4 +108,4 @@ sampleInput =
 
 printTraffic :: IO ()
 printTraffic =
-    mapM_ putStrLn $ map show allowedConfigs
+    mapM_ putStrLn $ map show allowedGreenLights
