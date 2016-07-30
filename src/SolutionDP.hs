@@ -10,11 +10,14 @@ initialState cfg = [cfg]
 totalAmount :: Config -> Int
 totalAmount = sum . map amount
 
-minuteRun :: GreenLights -> Config -> Config
-minuteRun lights = map runLights
+trafficRun :: GreenLights -> Int -> Config -> Config
+trafficRun lights duration = map runLights
     where
-      runLights flow | route flow `elem` lights = flow { amount = (amount flow) - (throughput flow) }
+      runLights flow | route flow `elem` lights = decr flow
       runLights flow = flow
+      decr flow | amount flow < totalThroughput flow = flow { amount = 0 }
+      decr flow = flow { amount = (amount flow) - (totalThroughput flow) }
+      totalThroughput flow = duration * (throughput flow)
 
 solution :: Config -> Int
 solution cfg =
