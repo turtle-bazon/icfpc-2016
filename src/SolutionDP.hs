@@ -3,10 +3,12 @@ module SolutionDP where
 import Data.List
 import TrafficLight
 
-type States = [Config]
+data DpStep = DpStep { config :: Config, lights :: GreenLights, duration :: Int, cost :: Int } deriving (Eq, Show)
 
-initialState :: Config -> States
-initialState cfg = [cfg]
+type DpTable = [DpStep]
+
+initDpTable :: Config -> DpTable
+initDpTable cfg = [DpStep { config = cfg, lights = [], duration = 0, cost = totalAmount cfg }]
 
 totalAmount :: Config -> Int
 totalAmount = sum . map amount
@@ -27,6 +29,31 @@ sortLights cfg duration =
           runWithLights lights = (lights, trafficRun duration lights cfg)
           rateLights (_, cfg) = totalAmount cfg
 
+solutionStep dpTable maxDuration =
+    dpTable ++ [bestDpStep]
+        where
+          possibleSteps = map step backSteps
+          backSteps = reverse [1 .. maxDuration]
+          step duration = mkDpStep duration (prevCfg duration) $ head $ sortLights (prevCfg duration) duration allowedGreenLights
+          mkDpStep duration cfg lights =
+              DpStep { config = trafficRun duration lights cfg
+                     , lights = lights
+                     , duration = duration
+                     , cost = totalAmount $ trafficRun duration lights cfg
+                     }
+          prevCfg duration = config $ dpTable !! (maxDuration - duration)
+          dpSteps = possibleSteps
+          bestDpStep = head $ sortOn (totalAmount . config) dpSteps
+
+solutionDp :: Config -> DpTable
+solutionDp cfg =
+    foldl solutionStep init durations
+        where
+          durations = [1 .. 10]
+          init = initDpTable cfg
+
+answerDp :: DpTable -> Int
+answerDp = head . reverse . sort . map amount . config . last
+
 solution :: Config -> Int
-solution cfg =
-    42
+solution = answerDp . solutionDp
