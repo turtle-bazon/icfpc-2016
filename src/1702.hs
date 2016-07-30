@@ -67,7 +67,7 @@ getGoodPermutations =
 		big_permutations
 
 
-solve ns vs ps 11 = (maximum ns, ns)
+solve ns vs ps 11 = (maximum ns, [])
 solve ns vs ps step = 
 	let
 		max_queue_len = maximum ns
@@ -76,8 +76,8 @@ solve ns vs ps step =
 		best_permutation_capacity = maximum $ map (permutation_capacity vs) permutations_for_longest_queues		
 		--best_permutations = filter (\p -> best_permutation_capacity == permutation_capacity vs p ) permutations_for_longest_queues
 		best_permutations = permutations_for_longest_queues
-		results = map (\bp -> solve (apply_permutation ns vs bp) vs ps (step+1)) best_permutations
-		best_result = foldl (\(val,r) -> \(val',r') -> if val < val' then (val,r) else (val',r')  ) (1000000,[]) results
+		results = map (\bp -> (bp, solve (apply_permutation ns vs bp) vs ps (step+1))) best_permutations
+		best_result = foldl (\(val,r) -> \(bp, (val',r')) -> if val < val' then (val,r) else (val',bp:r')  ) (1000000,[]) results
 	in
 		best_result
 	
@@ -102,7 +102,8 @@ run in0 =
 		ns = map (fst . fromJust . B.readInt) $  B.words $ l1
 		vs = map (fst . fromJust . B.readInt) $  B.words $ l2
 	in
-		show $ fst $ solve ns vs getGoodPermutations 1
+		--show $ fst $ solve ns vs getGoodPermutations 1
+		show $ solve ns vs getGoodPermutations 1
 
 main :: IO ()
 main = getContents >>= putStrLn . run . B.lines . bp
