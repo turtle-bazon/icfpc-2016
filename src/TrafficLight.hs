@@ -89,6 +89,7 @@ isCrossing (Move (Route srcA _) dirA) (Move (Route srcB _) dirB) =
 
 allowedGreenLights :: [GreenLights]
 allowedGreenLights =
+    -- filter ((==) 4 . length) $ map routes $ filter (not . containsCrossing) $ subsequences possibleMoves
     map routes $ filter (not . containsCrossing) $ subsequences possibleMoves
         where
           routes = map route
@@ -99,19 +100,21 @@ fromInput = zipWith makeFlow possibleMoves
     where makeFlow (Move route _) (amount, throughput) =
               Flow { route = route, amount = amount, throughput = throughput }
 
+fromParsedInput :: [Int] -> [Int] -> Config
+fromParsedInput amounts throughputs =
+    fromInput $ zipWith (,) amounts throughputs
+
 sampleInput :: Config
 sampleInput =
-    fromInput $ zipWith (,) amounts throughputs
-        where
-          amounts = [2, 0, 0, 14, 13, 0, 20, 0, 0, 0, 60, 7]
-          throughputs = [1, 1, 1, 1, 3, 1, 2, 1, 1, 1, 5, 1]
+    fromParsedInput [2, 0, 0, 14, 13, 0, 20, 0, 0, 0, 60, 7] [1, 1, 1, 1, 3, 1, 2, 1, 1, 1, 5, 1]
 
 sampleInputErrA :: Config
 sampleInputErrA =
-    fromInput $ zipWith (,) amounts throughputs
-        where
-          amounts = [601, 782, 931, 916, 88, 51, 629, 36, 274, 838, 975, 193]
-          throughputs = [481, 764, 552, 204, 696, 416, 725, 272, 43, 123, 644, 268]
+    fromParsedInput [601, 782, 931, 916, 88, 51, 629, 36, 274, 838, 975, 193] [481, 764, 552, 204, 696, 416, 725, 272, 43, 123, 644, 268]
+
+sampleInputErrB :: Config
+sampleInputErrB =
+    fromParsedInput [534, 865, 72, 56, 88, 659, 26, 351, 448, 316, 246, 744] [504, 110, 786, 898, 840, 582, 796, 284, 83, 673, 657, 427]
 
 printTraffic :: IO ()
 printTraffic =

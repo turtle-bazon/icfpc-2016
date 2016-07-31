@@ -6,6 +6,6 @@ import SolutionDP
 main :: IO ()
 main = do
   putStrLn "Configuration:"
-  mapM_ putStrLn $ map show sampleInputErrA
+  mapM_ putStrLn $ map show sampleInputErrB
   putStrLn ""
-  ppSolution sampleInputErrA
+  ppSolution sampleInputErrB

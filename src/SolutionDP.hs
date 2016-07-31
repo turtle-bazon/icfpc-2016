@@ -27,7 +27,7 @@ sortLights cfg duration =
     map fst . sortOn rateLights . map runWithLights
         where
           runWithLights lights = (lights, trafficRun duration lights cfg)
-          rateLights (_, cfg) = (slowestRouteFactor cfg, totalAmount cfg)
+          rateLights (_, cfg) = (avgRouteFactor cfg, totalAmount cfg)
 
 slowestRouteFactor :: Config -> Float
 slowestRouteFactor =
@@ -35,6 +35,20 @@ slowestRouteFactor =
         where
           pseudoFactor flow | factor flow < 1.0 = 0
           pseudoFactor flow = factor flow
+          factor flow = (fromIntegral $ amount flow) / (fromIntegral $ throughput flow)
+
+avgRouteFactor :: Config -> Float
+avgRouteFactor cfg =
+    (sum factors) / (fromIntegral $ length factors)
+        where
+          factors = map factor cfg
+          factor flow = (fromIntegral $ amount flow) / (fromIntegral $ throughput flow)
+
+medRouteFactor :: Config -> Float
+medRouteFactor cfg =
+    factors !! (quot (length factors) 2)
+        where
+          factors = sort $ map factor cfg
           factor flow = (fromIntegral $ amount flow) / (fromIntegral $ throughput flow)
 
 solutionStep :: DpTable -> Int -> DpTable
