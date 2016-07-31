@@ -1,0 +1,78 @@
+	Sun Jul 31 20:17 2016 Time and Allocation Profiling Report  (Final)
+
+	   true_decision +RTS -p -RTS
+
+	total time  =        5.62 secs   (5621 ticks @ 1000 us, 1 processor)
+	total alloc = 14,220,299,128 bytes  (excludes profiling overheads)
+
+COST CENTRE  MODULE  %time %alloc
+
+apply_lights Main     61.6   75.3
+solve        Main     35.0   22.3
+solve.res1   Main      2.3    2.4
+
+
+                                                                                       individual      inherited
+COST CENTRE                                 MODULE                  no.     entries  %time %alloc   %time %alloc
+
+MAIN                                        MAIN                    130          0    0.0    0.0   100.0  100.0
+ CAF                                        Main                    259          0    0.0    0.0    99.9  100.0
+  bp                                        Main                    299          1    0.0    0.0     0.0    0.0
+  nlines                                    Main                    298          1    0.0    0.0     0.0    0.0
+  route3                                    Main                    277          1    0.0    0.0     0.0    0.0
+  route2                                    Main                    276          1    0.0    0.0     0.0    0.0
+  route1                                    Main                    275          1    0.0    0.0     0.0    0.0
+  genPermutataions                          Main                    267          1    0.0    0.0     0.0    0.0
+   permutataions                            Main                    268         12    0.0    0.0     0.0    0.0
+    permutataions.\                         Main                    272       4094    0.0    0.0     0.0    0.0
+    permutataions.rest_permutations         Main                    269         11    0.0    0.0     0.0    0.0
+  getGoodPermutations                       Main                    264          1    0.0    0.0     0.1    0.0
+   getGoodPermutations.good_permutations    Main                    266          1    0.0    0.0     0.1    0.0
+    getGoodPermutations.good_permutations.\ Main                    270       4096    0.0    0.0     0.1    0.0
+     permutationIsBad                       Main                    271       5040    0.0    0.0     0.1    0.0
+      hasBadPairInList                      Main                    273      15539    0.0    0.0     0.1    0.0
+       badPair                              Main                    274      14595    0.0    0.0     0.1    0.0
+        badPair.\                           Main                    288         24    0.0    0.0     0.0    0.0
+        badPair.\                           Main                    287        104    0.0    0.0     0.0    0.0
+        badPair.\                           Main                    286         28    0.0    0.0     0.0    0.0
+        badPair.\                           Main                    285        596    0.0    0.0     0.0    0.0
+        badPair.\                           Main                    284       1260    0.0    0.0     0.0    0.0
+        badPair.\                           Main                    283       2282    0.0    0.0     0.0    0.0
+        badPair.\                           Main                    282        220    0.0    0.0     0.0    0.0
+        badPair.\                           Main                    281        276    0.0    0.0     0.0    0.0
+   getGoodPermutations.big_permutations     Main                    265          1    0.0    0.0     0.0    0.0
+    getGoodPermutations.big_permutations.\  Main                    278        112    0.0    0.0     0.0    0.0
+     contained                              Main                    279        112    0.0    0.0     0.0    0.0
+      contained.\                           Main                    280       4268    0.0    0.0     0.0    0.0
+  main                                      Main                    260          1    0.0    0.0    99.8  100.0
+   run                                      Main                    261          1    0.0    0.0    99.8  100.0
+    run.in1                                 Main                    307          1    0.0    0.0     0.0    0.0
+    run.(...)                               Main                    303          1    0.0    0.0     0.0    0.0
+     line                                   Main                    304          1    0.0    0.0     0.0    0.0
+      line.(...)                            Main                    306          1    0.0    0.0     0.0    0.0
+      line.x                                Main                    305          1    0.0    0.0     0.0    0.0
+    run.l2                                  Main                    302          1    0.0    0.0     0.0    0.0
+    run.vs                                  Main                    301          1    0.0    0.0     0.0    0.0
+    run.(...)                               Main                    294          1    0.0    0.0     0.0    0.0
+     line                                   Main                    295          1    0.0    0.0     0.0    0.0
+      line.xs                               Main                    308          1    0.0    0.0     0.0    0.0
+      line.(...)                            Main                    297          1    0.0    0.0     0.0    0.0
+      line.x                                Main                    296          1    0.0    0.0     0.0    0.0
+    run.l1                                  Main                    293          1    0.0    0.0     0.0    0.0
+    run.ns                                  Main                    292          1    0.0    0.0     0.0    0.0
+    solve'                                  Main                    262          1    0.0    0.0    99.8  100.0
+     permutationToVec                       Main                    300         17    0.0    0.0     0.0    0.0
+      permutationToVec.\                    Main                    309        204    0.0    0.0     0.0    0.0
+     solve                                  Main                    263   10623469   35.0   22.3    99.8  100.0
+      apply_lights                          Main                    311    2042975   16.5   20.9    16.5   20.9
+      solve.res2                            Main                    310    5311734    0.3    0.0     0.3    0.0
+      solve.ns'                             Main                    290    5311734    0.5    0.0    45.6   54.4
+       apply_lights                         Main                    291    5311734   45.0   54.4    45.0   54.4
+      solve.res1                            Main                    289    5311734    2.3    2.4     2.3    2.4
+ CAF                                        GHC.Conc.Signal         217          0    0.0    0.0     0.0    0.0
+ CAF                                        GHC.IO.Encoding         199          0    0.0    0.0     0.0    0.0
+ CAF                                        GHC.IO.Encoding.Iconv   197          0    0.0    0.0     0.0    0.0
+ CAF                                        GHC.IO.Exception        191          0    0.0    0.0     0.0    0.0
+ CAF                                        GHC.IO.Handle.FD        188          0    0.0    0.0     0.0    0.0
+ CAF                                        GHC.IO.Handle.Internals 187          0    0.0    0.0     0.0    0.0
+ CAF                                        GHC.IO.Handle.Text      186          0    0.0    0.0     0.0    0.0
