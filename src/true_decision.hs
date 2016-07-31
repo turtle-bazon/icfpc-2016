@@ -69,28 +69,31 @@ getGoodPermutations =
 		big_permutations
 
 
-permutationToVec :: [Int] -> [Int] -> [Int]
+--permutationToVec :: [Int] -> [Int] -> [Int]
 permutationToVec vs ps =
-	map (\(n,v) -> if elem n ps then v else 0) $ zip [1..12] vs
+	let
+		[n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12] = map (\(n,v) -> if elem n ps then v else 0) $ zip [1..12] vs
+	in
+		(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12)
 
 
 solve' :: [Int] -> [Int] -> Int
-solve' ns vs =
-	max 0 $ solve ns (map (permutationToVec vs) getGoodPermutations) 1
+solve' [n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12] vs =
+	max 0 $ solve (n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12) (map (permutationToVec vs) getGoodPermutations) 1
 
-solve :: [Int] -> [[Int]] -> Int -> Int
+solve :: (Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int) -> [(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int)] -> Int -> Int
 solve ns ps 11 = 
-	maximum  $ ns
+	maximum' $ ns
 
 solve ns [] step = 
-	maximum $ ns
+	maximum' $ ns
 
 solve ns (p:[]) step =
-	maximum $ apply_lights ns p
+	maximum' $ applyLights ns p
 
 solve ns (p:ps) step = 
 	let
-		ns' = apply_lights ns p
+		ns' = applyLights ns p
 		res1 = solve ns' (p:ps) (step+1)
 		res2 = solve ns ps step
 	in
@@ -99,6 +102,12 @@ solve ns (p:ps) step =
 apply_lights :: [Int] -> [Int] -> [Int]
 apply_lights ns lights =
 	zipWith (-) ns lights
+
+applyLights (n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12) (l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,l11,l12) =
+	(n1-l1,n2-l2,n3-l3,n4-l4,n5-l5,n6-l6,n7-l7,n8-l8,n9-l9,n10-l10,n11-l11,n12-l12)
+
+maximum' (n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12) =
+	max n1 $ max n2 $ max n3 $ max n4 $ max n5 $ max n6 $ max n7 $ max n8 $ max n9 $ max n10 $ max n11 n12
 		
 apply_permutation ns vs ps = 
 	apply_perm (zip ns [1..12]) vs ps
