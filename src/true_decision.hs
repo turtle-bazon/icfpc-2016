@@ -74,36 +74,35 @@ permutationToVec vs ps =
 	let
 		[n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12] = map (\(n,v) -> if elem n ps then v else 0) $ zip [1..12] vs
 	in
-		(n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12)
+		((n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12), ps)
 
 
-solve' :: [Int] -> [Int] -> Int
+solve' :: [Int] -> [Int] -> (Int,[[Int]])
 solve' [n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12] vs =
-	max 0 $ solve (n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12) (map (permutationToVec vs) getGoodPermutations) 1
+	let
+	 (res, trace) = solve (n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12) (map (permutationToVec vs) getGoodPermutations) 1
+	in
+	(max 0 res, trace)
 
-solve :: (Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int) -> [(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int)] -> Int -> Int
+solve :: (Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int) -> [((Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,Int),[Int])] -> Int -> (Int,[[Int]])
 solve ns ps 11 = 
-	maximum' $ ns
+	(maximum' $ ns, [])
 
 solve ns [] step = 
-	maximum' $ ns
+	(maximum' $ ns, [])
 
 solve ns (p:[]) step =
-	maximum' $ applyLights ns p
+	(maximum' $ applyLights ns p, [snd p])
 
 solve ns (p:ps) step = 
 	let
 		ns' = applyLights ns p
-		res1 = solve ns' (p:ps) (step+1)
-		res2 = solve ns ps step
+		(res1,trace1) = solve ns' (p:ps) (step+1)
+		(res2,trace2) = solve ns ps step
 	in
-		if res1 < res2 then res1 else res2
+		if res1 < res2 then (res1, (snd p):trace1) else (res2,trace2)
 
-apply_lights :: [Int] -> [Int] -> [Int]
-apply_lights ns lights =
-	zipWith (-) ns lights
-
-applyLights (n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12) (l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,l11,l12) =
+applyLights (n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12) ((l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,l11,l12),origin) =
 	(n1-l1,n2-l2,n3-l3,n4-l4,n5-l5,n6-l6,n7-l7,n8-l8,n9-l9,n10-l10,n11-l11,n12-l12)
 
 maximum' (n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12) =
