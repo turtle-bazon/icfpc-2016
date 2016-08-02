@@ -1,0 +1,15 @@
+#!/bin/sh
+
+for i in $(seq 1 10); do
+  perl -e 'sub a{int(rand(1001))};sub t{int(rand(1000))+1};@aa=map{a()}(1..12);@tt=map{t()}(1..12);sub out{print join" ",@aa;print"\n";print join" ",@tt;print"\n"}out()' > /tmp/data
+  TD_SOLUTION=$(cat /tmp/data|./true_decision)
+  ST_SOLUTION=$(cat /tmp/data|./slow_traffic)
+
+  if [ "$TD_SOLUTION" != "$ST_SOLUTION" ]; then
+    cat /tmp/data
+    echo $TD_SOLUTION
+    echo $ST_SOLUTION
+    echo ""
+  fi
+done
+
