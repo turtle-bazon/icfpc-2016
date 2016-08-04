@@ -122,7 +122,7 @@ parseTask string_cars string_velocities =
 
 solve :: CrossRoads -> CrossRoads
 solve cr
-  | currentMinute cr == 2 = cr
+  | currentMinute cr == 10 = cr
   | otherwise = solve $ evaluateMinute cr $ chooseLights (variant cr) (currentMinute cr) (cars $ head $ minutes cr)
 
 constructVariant :: (CrossRoads, Int) -> CrossRoads
