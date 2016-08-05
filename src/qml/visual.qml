@@ -18,21 +18,30 @@ Window {
                 ctx.scale(parent.width, -parent.height);
 
                 var factor = Math.sqrt(parent.width * parent.width + parent.height * parent.height);
-                ctx.lineWidth = lineWidth / factor;
-                ctx.strokeStyle = strokeStyle;
-                ctx.fillStyle = fillStyle;
+                ctx.lineWidth = 2 / factor;
 
                 var i = 0;
                 for (i = 0; i < polygons.length; i++) {
-                    var points = polygons[i];
+                    switch (polygons[i].type) {
+                    case 'fill':
+                        ctx.strokeStyle = 'red';
+                        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                        break;
+                    case 'hole':
+                        ctx.strokeStyle = 'yellow';
+                        ctx.fillStyle = 'rgba(0, 255, 255, 0.7)';
+                        break;
+                    }
+
+                    var points = polygons[i].points;
                     if (points.length > 0) {
                         ctx.beginPath();
 
                         ctx.moveTo(points[0][0], points[0][1]);
 
-                        var i = 1;
-                        for (i = 1; i < points.length; i++) {
-                            ctx.lineTo(points[i][0], points[i][1]);
+                        var j = 1;
+                        for (j = 1; j < points.length; j++) {
+                            ctx.lineTo(points[j][0], points[j][1]);
                         }
 
                         ctx.closePath();
@@ -99,9 +108,6 @@ Window {
 
             /* property var points: [[0,0], [1,0], [0.5, 0.5], [0, 0.5]]; */
             property var polygons: JSON.parse(pointsJSON);
-            property int lineWidth: 2;
-            property string strokeStyle: 'red';
-            property string fillStyle: 'rgba(255, 0, 0, 0.5)';
         }
     }
 

@@ -9,10 +9,8 @@ instance JSON Point where
 
 instance JSON SilhouettePoly where
   readJSON = undefined
-  showJSON (PolyFill points) = showJSON points
-  showJSON (PolyHole points) = JSArray []
-  -- JSObject (JSArray [ (toJSString "type", toJSString "fill"), (toJSString "points", showJSON points) ])
-  -- showJSON (PolyHole points) = toJSObject (JSObject [ ("type", "hole"), ("points", points) ]
+  showJSON (PolyFill points) = makeObj [("type", showJSON "fill"), ("points", showJSON points)]
+  showJSON (PolyHole points) = makeObj [("type", showJSON "hole"), ("points", showJSON points)]
 
 instance JSON Problem where
   readJSON = undefined
