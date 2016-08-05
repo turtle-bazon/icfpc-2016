@@ -12,7 +12,7 @@ approx = flip approxRational $ epsilon
 
 negatePoint :: Point -> Point
 negatePoint point =
-    Point { px = -(px point), py = -(px point) }
+    Point { px = -(px point), py = -(py point) }
 
 translatePoint :: Point -> Point -> Point
 translatePoint delta point =
@@ -30,11 +30,11 @@ rotatePoint pivot angle =
 
 translate :: Point -> Solution -> Solution
 translate delta solution =
-    solution { dst = map (translatePoint delta) $ dst solution }
+    solution { dst = map (\p -> p { vertex = translatePoint delta $ vertex p }) $ dst solution }
 
 rotate :: Point -> Float -> Solution -> Solution
 rotate pivot angle solution =
-    solution { dst = map (rotatePoint pivot angle) $ dst solution }
+    solution { dst = map (\p -> p { vertex = rotatePoint pivot angle $ vertex p }) $ dst solution }
 
 fold :: Edge -> Solution -> Solution
 fold segment solution =

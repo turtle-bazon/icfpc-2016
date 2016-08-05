@@ -66,10 +66,11 @@ foldRectangleW width =
         d' = Point 0 1
         e' = Point width 1
         f' = Point (2*width - 1) 1
+        enumeratePoints points = map (\(i,v) -> IndexedPoint { index = i, vertex = v }) $ zip [0..6] points
     in
-        Solution { src = map (\(i,v) -> IndexedPoint { index = i, vertex = v }) $ zip [0..6] [a, b, c, d, e, f],
+        Solution { src = enumeratePoints [a, b, c, d, e, f],
                    facets = [[0, 1, 4, 3], [1, 2, 5, 4]],
-                   dst = [ a', b', c', d', e', f' ] }
+                   dst = enumeratePoints [a', b', c', d', e', f'] }
 
 foldRectangleH :: Number -> Solution
 foldRectangleH height =
@@ -87,10 +88,11 @@ foldRectangleH height =
         d' = Point 1 height
         e' = Point 0 (2*height - 1)
         f' = Point 1 (2*height - 1)
+        enumeratePoints points = map (\(i,v) -> IndexedPoint { index = i, vertex = v }) $ zip [0..6] points
     in
-        Solution { src = map (\(i,v) -> IndexedPoint { index = i, vertex = v }) $ zip [0..6] [a, b, c, d, e, f],
+        Solution { src = enumeratePoints [a, b, c, d, e, f],
                    facets = [[0, 1, 3, 2], [2, 3, 5, 4]],
-                   dst = [ a', b', c', d', e', f' ] }
+                   dst = enumeratePoints [ a', b', c', d', e', f' ] }
 
 
 foldRectangle :: Number -> Number -> Solution
@@ -115,10 +117,11 @@ foldRectangle width height =
         g' = Point 0 (2*height - 1)
         h' = Point width (2*height - 1)
         j' = Point (2*width - 1) (2*height - 1)
+        enumeratePoints points = map (\(i,v) -> IndexedPoint { index = i, vertex = v }) $ zip [0..6] points
     in
-        Solution { src = map (\(i,v) -> IndexedPoint { index = i, vertex = v }) $ zip [0..9] [a, b, c, d, e, f, g, h, j],
+        Solution { src = enumeratePoints [a, b, c, d, e, f, g, h, j],
                    facets = [[0, 1, 4, 3], [1, 2, 5, 4], [3, 4, 7, 6], [4, 5, 8, 7]],
-                   dst = [ a', b', c', d', e', f', g', h', j' ] }
+                   dst = enumeratePoints [ a', b', c', d', e', f', g', h', j' ] }
 
 
 
