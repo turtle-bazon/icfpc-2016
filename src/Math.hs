@@ -11,8 +11,8 @@ translate :: Point -> Solution -> Solution
 translate delta solution =
     solution { dst = map (translatePoint delta) $ dst solution }
 
-rotate :: Float -> Solution -> Solution
-rotate angle solution =
+rotate :: Point -> Float -> Solution -> Solution
+rotate pivot angle solution =
     undefined
 
 fold :: Edge -> Solution -> Solution
