@@ -58,10 +58,10 @@ showPoint (Point x y) =
 printSolution :: (Point, Point) -> IO ()
 printSolution ((Point minX minY), (Point maxX maxY)) = do
   putStrLn "4"
-  putStrLn $ showPoint $ Point minX minY
-  putStrLn $ showPoint $ Point maxX minY
-  putStrLn $ showPoint $ Point maxX maxY
-  putStrLn $ showPoint $ Point minX maxY
+  putStrLn "0,0"
+  putStrLn "1,0"
+  putStrLn "1,1"
+  putStrLn "0,1"
   putStrLn "1"
   putStrLn "4 0 1 2 3"
   putStrLn $ showPoint $ Point minX minY
