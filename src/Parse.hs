@@ -35,3 +35,17 @@ parseSilhouette (polyCountStr : restLines) =
           parsePolygons count acc rest =
               let (poly, nextRest) = parsePoly rest
               in  parsePolygons (count - 1) (poly : acc) nextRest
+
+parseEdge :: String -> Edge
+parseEdge line =
+    (pointA, pointB)
+        where
+          pointA : pointB : [] = map parsePoint $ words line
+
+parseSkeleton :: [String] -> (Skeleton, [String])
+parseSkeleton (edgesCountStr : restLines) =
+    (map parseEdge edgeLines, otherLines)
+        where
+          count = read edgesCountStr
+          edgeLines = take count restLines
+          otherLines = drop count restLines
