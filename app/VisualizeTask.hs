@@ -6,6 +6,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 
 import Parse
+import Visualize
 import Text.JSON
 
 import Paths_icfpc2016

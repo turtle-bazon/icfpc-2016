@@ -1,26 +1,14 @@
 module Common where
 
 import Data.Ratio
-import Text.JSON
 
 type Number = Ratio Integer
 
 data Point = Point { px :: Number, py :: Number } deriving (Eq, Show)
 
-instance JSON Point where
-  readJSON = undefined
-  showJSON Point {px = px, py = py} = JSArray [JSRational True px, JSRational True py]
-
 type Poly = [Point]
 
 data SilhouettePoly = PolyFill Poly | PolyHole Poly deriving (Eq, Show)
-
-instance JSON SilhouettePoly where
-  readJSON = undefined
-  showJSON (PolyFill points) = showJSON points
-  showJSON (PolyHole points) = JSArray []
-  -- JSObject (JSArray [ (toJSString "type", toJSString "fill"), (toJSString "points", showJSON points) ])
-  -- showJSON (PolyHole points) = toJSObject (JSObject [ ("type", "hole"), ("points", points) ]
 
 type Silhouette = [SilhouettePoly]
 
@@ -29,10 +17,6 @@ type Edge = (Point, Point)
 type Skeleton = [Edge]
 
 data Problem = Problem { silhouette :: Silhouette, skeleton :: Skeleton } deriving (Eq, Show)
-
-instance JSON Problem where
-  readJSON = undefined
-  showJSON Problem {silhouette = silhouette} = showJSON silhouette
 
 type PointIndex = Int
 
