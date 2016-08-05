@@ -20,7 +20,7 @@ data Problem = Problem { silhouette :: Silhouette, skeleton :: Skeleton } derivi
 
 type PointIndex = Int
 
-data IndexedPoint = IndexedPoint { index :: PointIndex, vertices :: [Point] } deriving (Eq, Show)
+data IndexedPoint = IndexedPoint { index :: PointIndex, vertex :: Point } deriving (Eq, Show)
 
 type FacetPoly = [PointIndex]
 

@@ -18,19 +18,19 @@ bbox points =
           maxX = maximum $ map px points
           maxY = maximum $ map py points
 
-printSolution :: (Point, Point) -> IO ()
-printSolution (tl, br) = do
-  putStrLn "4"
-  putStrLn "0,0"
-  putStrLn "1,0"
-  putStrLn "1,1"
-  putStrLn "0,1"
-  putStrLn "1"
-  putStrLn "4 0 1 2 3"
-  putStrLn $ showPoint $ Point (px tl) (py tl)
-  putStrLn $ showPoint $ Point (px br) (py tl)
-  putStrLn $ showPoint $ Point (px br) (py br)
-  putStrLn $ showPoint $ Point (px tl) (py br)
+makeSolution :: (Point, Point) -> Solution
+makeSolution (tl, br) =
+    Solution { src = [ IndexedPoint { index = 0, vertex = Point { px = 0, py = 0 } }
+                     , IndexedPoint { index = 1, vertex = Point { px = 1, py = 0 } }
+                     , IndexedPoint { index = 2, vertex = Point { px = 1, py = 1 } }
+                     , IndexedPoint { index = 3, vertex = Point { px = 0, py = 1 } }
+                     ],
+               facets = [[0, 1, 2, 3]],
+               dst = [ Point (px tl) (py tl)
+                     , Point (px br) (py tl)
+                     , Point (px br) (py br)
+                     , Point (px tl) (py br)
+                     ] }
 
 parseFirstPoly :: String -> Poly
 parseFirstPoly = polygon . head . filter isFillPoly . fst . parseSilhouette . lines

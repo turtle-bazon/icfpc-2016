@@ -1,8 +1,9 @@
 module Main where
 
 import BoundingBox
+import Show
 
 main :: IO ()
 main = do
   contents <- getContents
-  printSolution $ bbox $ parseFirstPoly contents
+  putStr $ showSolution $ makeSolution $ bbox $ parseFirstPoly contents
