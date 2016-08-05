@@ -2,15 +2,15 @@ module Main where
 
 import Data.Ratio
 
-data Point = Point (Ratio Int) (Ratio Int) deriving (Eq, Show)
+data Point = Point (Ratio Integer) (Ratio Integer) deriving (Eq, Show)
 
-px :: Point -> Ratio Int
+px :: Point -> Ratio Integer
 px (Point x _) = x
 
-py :: Point -> Ratio Int
+py :: Point -> Ratio Integer
 py (Point _ y) = y
 
-parseRatio :: String -> Ratio Int
+parseRatio :: String -> Ratio Integer
 parseRatio string =
     numerator % denominator
         where
@@ -47,7 +47,7 @@ bbox points =
           maxX = maximum $ map px points
           maxY = maximum $ map py points
 
-showRatio :: Ratio Int -> String
+showRatio :: Ratio Integer -> String
 showRatio v =
     case denominator v of
       1 -> show $ numerator v
