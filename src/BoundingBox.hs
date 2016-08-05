@@ -17,6 +17,9 @@ bbox points =
           maxX = maximum $ map px points
           maxY = maximum $ map py points
 
+bbox' :: Silhouette -> (Point, Point)
+bbox' ((PolyFill poly) : _) = bbox poly
+bbox' (_ : xs) = bbox' xs
 
 makeRectangleSolution :: Poly -> Solution
 makeRectangleSolution points =
