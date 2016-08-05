@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Common Parse Math Show BoundingBox
+  exposed-modules:     Common Parse Math Show Figures BoundingBox
   build-depends:       base >= 4.7 && < 5
                      , clipper
   default-language:    Haskell2010

@@ -44,3 +44,9 @@ polygon :: SilhouettePoly -> Poly
 polygon (PolyFill points) = points
 polygon (PolyHole points) = points
 
+dotPolyArea :: Poly -> Number
+dotPolyArea poly =
+    (sum chunks) / 2
+        where
+          chunks = zipWith multiply poly (tail $ cycle poly)
+          multiply p1 p2 = ((px p1) + (px p2)) * ((py p1) - (py p2))

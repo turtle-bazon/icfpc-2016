@@ -35,7 +35,7 @@ parseSilhouette (polyCountStr : restLines) =
           parsePolygons count acc rest =
               let (poly, nextRest) = parsePoly rest
               in  parsePolygons (count - 1) (poly : acc) nextRest
-          mkPoly points | polyArea points < 0 = PolyFill points
+          mkPoly points | dotPolyArea points < 0 = PolyFill points
           mkPoly points = PolyHole points
 
 parseEdge :: String -> Edge
