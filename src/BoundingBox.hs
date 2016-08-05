@@ -4,8 +4,8 @@ import Data.Ratio
 import Common
 import Parse
 
-bbox :: Poly -> (Point, Point)
-bbox points =
+bbox :: SilhouettePoly -> (Point, Point)
+bbox (PolyFill points) =
     (topLeft, bottomRight)
         where
           topLeft = Point { px = minX, py = minY }
@@ -31,5 +31,5 @@ printSolution (tl, br) = do
   putStrLn $ showPoint $ Point (px br) (py br)
   putStrLn $ showPoint $ Point (px tl) (py br)
 
-parseFirstPoly :: String -> Poly
+parseFirstPoly :: String -> SilhouettePoly
 parseFirstPoly = head . fst . parseSilhouette . lines

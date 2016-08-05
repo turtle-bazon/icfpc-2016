@@ -31,10 +31,12 @@ parseSilhouette :: [String] -> (Silhouette, [String])
 parseSilhouette (polyCountStr : restLines) =
     parsePolygons (read polyCountStr) [] restLines
         where
-          parsePolygons 0 acc rest = (acc, rest)
+          parsePolygons 0 acc rest = (map mkPoly acc, rest)
           parsePolygons count acc rest =
               let (poly, nextRest) = parsePoly rest
               in  parsePolygons (count - 1) (poly : acc) nextRest
+          mkPoly points | polyArea points < 0 = PolyFill points
+          mkPoly points = PolyHole points
 
 parseEdge :: String -> Edge
 parseEdge line =

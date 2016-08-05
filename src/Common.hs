@@ -8,7 +8,9 @@ data Point = Point { px :: Number, py :: Number } deriving (Eq, Show)
 
 type Poly = [Point]
 
-type Silhouette = [Poly]
+data SilhouettePoly = PolyFill Poly | PolyHole Poly deriving (Eq, Show)
+
+type Silhouette = [SilhouettePoly]
 
 type Edge = (Point, Point)
 
