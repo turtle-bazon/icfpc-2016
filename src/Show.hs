@@ -26,6 +26,6 @@ showSolution sol =
           showSrc = (showTotal $ src sol) ++ (showList $ map (showPoint . vertex) $ src sol)
           showFacets = (showTotal $ facets sol) ++ (showList $ map showFacet $ facets sol)
           showFacet indices = unwords $ (show $ length indices) : (map show indices)
-          showDst = showList $ map showPoint $ dst sol
+          showDst = showList $ map (showPoint . vertex) $ dst sol
           showList = foldr (\v acc -> v ++ "\n" ++ acc) ""
           showTotal l = (show $ length l) ++ "\n"
