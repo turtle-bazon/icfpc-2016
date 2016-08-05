@@ -2,6 +2,7 @@ module Visualize where
 
 import Text.JSON
 import Common
+import BoundingBox
 
 instance JSON Point where
   readJSON = undefined
@@ -16,3 +17,9 @@ instance JSON Problem where
   readJSON = undefined
   showJSON Problem {silhouette = polygons, skeleton = skeleton} = makeObj [("polygons", showJSON polygons),
                                                                            ("skeleton", showJSON skeleton)]
+
+makeProblemModel :: Problem -> JSValue
+makeProblemModel problem@(Problem {silhouette = polygons, skeleton = skeleton})
+  = makeObj [("polygons", showJSON polygons),
+             ("skeleton", showJSON skeleton),
+             ("bbox", showJSON $ bbox' polygons)]

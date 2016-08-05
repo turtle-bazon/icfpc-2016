@@ -15,7 +15,7 @@ main :: IO ()
 main = do
     problemData <- getContents
     problem <- return $ parseProblem $ lines problemData
-    state <- newIORef $ T.pack $ encode problem
+    state <- newIORef $ T.pack $ encode $ makeProblemModel problem
     -- putStr $ encode problem
     clazz <- newClass [
       defPropertyConst' "problemJSON" (\_ -> readIORef state)

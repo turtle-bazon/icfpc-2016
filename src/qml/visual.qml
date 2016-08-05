@@ -20,6 +20,10 @@ Window {
                 var factor = Math.sqrt(parent.width * parent.width + parent.height * parent.height);
                 ctx.lineWidth = 2 / factor;
 
+                /* Start point for problem */
+                var dx = problem.bbox[0][0];
+                var dy = problem.bbox[0][1];
+
                 /* Problem polygons */
                 var i = 0; var polygons = problem.polygons;
                 for (i = 0; i < polygons.length; i++) {
@@ -38,11 +42,11 @@ Window {
                     if (points.length > 0) {
                         ctx.beginPath();
 
-                        ctx.moveTo(points[0][0], points[0][1]);
+                        ctx.moveTo(points[0][0] - dx, points[0][1] - dy);
 
                         var j = 1;
                         for (j = 1; j < points.length; j++) {
-                            ctx.lineTo(points[j][0], points[j][1]);
+                            ctx.lineTo(points[j][0] - dx, points[j][1] - dy);
                         }
 
                         ctx.closePath();
@@ -55,8 +59,8 @@ Window {
                 ctx.strokeStyle = 'rgba(100, 100, 100, 0.8)';
                 for (i = 0; i < problem.skeleton.length; i++) {
                     var line = problem.skeleton[i];
-                    ctx.moveTo(line[0][0], line[0][1]);
-                    ctx.lineTo(line[1][0], line[1][1]);
+                    ctx.moveTo(line[0][0] - dx, line[0][1] - dy);
+                    ctx.lineTo(line[1][0] - dx, line[1][1] - dy);
                     ctx.closePath();
                     ctx.stroke();
                 }
