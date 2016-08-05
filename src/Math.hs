@@ -1,5 +1,6 @@
 module Math where
 
+import Debug.Trace
 import Data.Ratio
 import Common
 import Show
@@ -36,6 +37,12 @@ rotate :: Point -> Float -> Solution -> Solution
 rotate pivot angle solution =
     solution { dst = map (rotatePoint pivot angle) $ dst solution }
 
-fold :: Edge -> Solution -> Solution
-fold segment solution =
-    undefined
+fold :: Edge -> (Number -> Number -> Bool) -> Solution -> Solution
+fold edge sideComparator solution =
+  let line = lineForEdge edge
+  in Solution {src = src solution,
+               facets = facets solution,
+               dst = map (\p -> if isPointPosition p line sideComparator
+                                then reflectPointBy p line
+                                else p) $ dst solution}
+     

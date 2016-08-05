@@ -14,6 +14,27 @@ type Silhouette = [SilhouettePoly]
 
 type Edge = (Point, Point)
 
+data Line = Line {k :: Number, b :: Number}
+
+lineForEdge :: Edge -> Line
+lineForEdge edge =
+  let (p1, p2) = edge
+      k = (py p2 - py p1) / (px p2 - py p1)
+      b = px p2 - k * px p2
+  in
+    Line {k = k,
+          b = b}
+
+normalLineBy :: Point -> Line -> Line
+normalLineBy (Point px py) (Line k b) =
+  let b = py + k * px
+  in Line {k = (-k),
+           b = b}
+
+isPointPosition :: Point -> Line -> (Number -> Number -> Bool) -> Bool
+isPointPosition (Point x y) (Line k b) sideComparator =
+  y `sideComparator` (k * x + b)
+
 type Skeleton = [Edge]
 
 data Problem = Problem { silhouette :: Silhouette, skeleton :: Skeleton } deriving (Eq, Show)
@@ -57,3 +78,10 @@ silhouetteArea =
         where
           sumArea (PolyFill poly) total = total + (abs $ polyArea poly)
           sumArea (PolyHole poly) total = total - (abs $ polyArea poly)
+
+reflectPointBy :: Point -> Line -> Point
+reflectPointBy (Point px py) (Line k b) =
+  let d = (px + (py - b) * k) / (1 + k^2)
+      refx = 2 * d - px
+      refy = 2 * d * k - py + 2 * b
+  in Point {px = refx, py = refy}
