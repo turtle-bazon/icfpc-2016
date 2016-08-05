@@ -18,6 +18,15 @@ type Skeleton = [Edge]
 
 data Problem = Problem { silhouette :: Silhouette, skeleton :: Skeleton } deriving (Eq, Show)
 
+type PointIndex = Int
+
+data IndexedPoint = IndexedPoint { index :: PointIndex, vertices :: [Point] } deriving (Eq, Show)
+
+type FacetPoly = [PointIndex]
+
+data Solution = Solution { src :: [IndexedPoint], facets :: [FacetPoly], dst :: [Point] } deriving (Eq, Show)
+
+
 polygon :: SilhouettePoly -> Poly
 polygon (PolyFill points) = points
 polygon (PolyHole points) = points
