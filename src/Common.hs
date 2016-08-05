@@ -44,16 +44,3 @@ polygon :: SilhouettePoly -> Poly
 polygon (PolyFill points) = points
 polygon (PolyHole points) = points
 
-polyArea :: Poly -> Number
-polyArea poly =
-    (sum chunks) / 2
-        where
-          chunks = zipWith multiply poly (tail $ cycle poly)
-          multiply p1 p2 = ((px p1) + (px p2)) * ((py p1) - (py p2))
-
-silhouetteArea :: Silhouette -> Number
-silhouetteArea =
-    foldr sumArea 0
-        where
-          sumArea (PolyFill poly) total = total + (abs $ polyArea poly)
-          sumArea (PolyHole poly) total = total - (abs $ polyArea poly)

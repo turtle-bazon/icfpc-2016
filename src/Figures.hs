@@ -39,3 +39,19 @@ polyIntersect = polyOp intersection
 
 polyUnion :: [Poly] -> [Poly] -> IO [Poly]
 polyUnion = polyOp union
+
+polyArea :: Poly -> IO Double
+polyArea p = do
+  let poly = toIntPoly p
+  areaE12 <- area poly
+  return $ areaE12 / 1000000000000
+
+silhouetteArea :: Silhouette -> IO Double
+silhouetteArea sil = do
+    areas <- sequence $ map area' sil
+    return $ sum areas
+        where
+          area' (PolyFill poly) = polyArea poly
+          area' (PolyHole poly) = do
+                       a <- polyArea poly
+                       return $ -a
