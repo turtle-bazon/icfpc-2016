@@ -1,5 +1,6 @@
 module Figures where
 
+import Data.List
 import Data.SG.Geometry.TwoDim
 import Common
 import Math
@@ -40,7 +41,7 @@ gpolyToPoly =
 
 intersectionPoints :: Poly -> Poly -> Poly
 intersectionPoints subj clip =
-    map restore $ filter isFinite $ findAllIntersections2 (polyToGPoly subj, polyToGPoly clip)
+    nub $ map restore $ filter isFinite $ findAllIntersections2 (polyToGPoly subj, polyToGPoly clip)
         where
           isFinite ((_, fa), (_, fb)) | fa >= 0 && fa <= 1 && fb >= 0 && fb <= 1 = True
           isFinite _ = False
