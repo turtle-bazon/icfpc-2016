@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Common Parse Math Show BoundingBox
   build-depends:       base >= 4.7 && < 5
+                     , hgeometry
   default-language:    Haskell2010
 
 executable icfpc2016-exe
