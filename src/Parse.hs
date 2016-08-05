@@ -49,3 +49,10 @@ parseSkeleton (edgesCountStr : restLines) =
           count = read edgesCountStr
           edgeLines = take count restLines
           otherLines = drop count restLines
+
+parseProblem :: [String] -> Problem
+parseProblem lines =
+    Problem { silhouette = silhouette, skeleton = skeleton }
+        where
+          (silhouette, skeletonLines) = parseSilhouette lines
+          (skeleton, []) = parseSkeleton skeletonLines

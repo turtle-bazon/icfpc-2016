@@ -14,6 +14,8 @@ type Edge = (Point, Point)
 
 type Skeleton = [Edge]
 
+data Problem = Problem { silhouette :: Silhouette, skeleton :: Skeleton } deriving (Eq, Show)
+
 showNumber :: Number -> String
 showNumber v =
     case denominator v of
