@@ -20,5 +20,22 @@ fromIntPoint (IntPoint x y) =
           , py = approx $ (fromIntegral y) / 1000000.0
           }
 
--- polyIntersect :: Poly -> Poly -> IO Poly
--- polyIntersect a b =
+toIntPoly :: Poly -> Polygon
+toIntPoly = Polygon . map toIntPoint
+
+fromIntPoly :: Polygon -> Poly
+fromIntPoly (Polygon ps) =
+    map fromIntPoint ps
+
+polyOp :: (Polygons -> Polygons -> IO Polygons) -> [Poly] -> [Poly] -> IO [Poly]
+polyOp op psa psb = do
+    let ipsa = Polygons $ map toIntPoly psa
+    let ipsb = Polygons $ map toIntPoly psb
+    Polygons ps <- op ipsa ipsb
+    return $ map fromIntPoly ps
+
+polyIntersect :: [Poly] -> [Poly] -> IO [Poly]
+polyIntersect = polyOp intersection
+
+polyUnion :: [Poly] -> [Poly] -> IO [Poly]
+polyUnion = polyOp union
