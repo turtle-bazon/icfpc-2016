@@ -1,7 +1,6 @@
 module Math where
 
 import Data.Ratio
-import Algebra.Clipper
 import Common
 import Show
 
@@ -40,6 +39,3 @@ rotate pivot angle solution =
 fold :: Edge -> Solution -> Solution
 fold segment solution =
     undefined
-
-toPair :: Point -> (Number, Number)
-toPair (Point x y) = (x, y)
