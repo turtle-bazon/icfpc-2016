@@ -1,8 +1,6 @@
 module Show where
 
 import Data.Ratio
-import Data.List
-import Data.Maybe
 import Common
 
 showNumber :: Number -> String
@@ -23,9 +21,9 @@ showSolution :: Solution -> String
 showSolution sol =
     showSrc ++ showFacets ++ showDst
         where
-          showSrc = (showTotal $ src sol) ++ (showList $ map (showPoint . vertex) $ src sol)
-          showFacets = (showTotal $ facets sol) ++ (showList $ map showFacet $ facets sol)
+          showSrc = (showTotal $ src sol) ++ (showLst $ map (showPoint . vertex) $ src sol)
+          showFacets = (showTotal $ facets sol) ++ (showLst $ map showFacet $ facets sol)
           showFacet indices = unwords $ (show $ length indices) : (map show indices)
-          showDst = showList $ map showPoint $ dst sol
-          showList = foldr (\v acc -> v ++ "\n" ++ acc) ""
+          showDst = showLst $ map showPoint $ dst sol
+          showLst = foldr (\v acc -> v ++ "\n" ++ acc) ""
           showTotal l = (show $ length l) ++ "\n"

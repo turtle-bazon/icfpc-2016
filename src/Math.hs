@@ -2,7 +2,6 @@ module Math where
 
 import Data.Ratio
 import Common
-import Show
 
 epsilon :: Float
 epsilon = 1.0 - 0.999999
@@ -20,13 +19,13 @@ translatePoint delta point =
 
 rotatePoint :: Point -> Float -> Point -> Point
 rotatePoint pivot angle =
-    fromOrigin . rotate . toOrigin
+    fromOrigin . rotate' . toOrigin
         where
           toOrigin = translatePoint (negatePoint pivot)
           fromOrigin = translatePoint pivot
-          rotate p = Point { px = ((px p) * (approx $ cos angle)) - ((py p) * (approx $ sin angle))
-                           , py = ((py p) * (approx $ cos angle)) + ((px p) * (approx $ sin angle))
-                           }
+          rotate' p = Point { px = ((px p) * (approx $ cos angle)) - ((py p) * (approx $ sin angle))
+                            , py = ((py p) * (approx $ cos angle)) + ((px p) * (approx $ sin angle))
+                            }
 
 translate :: Point -> Solution -> Solution
 translate delta solution =
