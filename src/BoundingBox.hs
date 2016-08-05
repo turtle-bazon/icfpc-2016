@@ -1,6 +1,7 @@
 module BoundingBox where
 
 import Data.Ratio
+import Debug.Trace
 import Common
 import Parse
 import Math
@@ -18,8 +19,55 @@ bbox points =
           maxY = maximum $ map py points
 
 
-makeRectangleSolution :: Poly -> Solution
-makeRectangleSolution points =
+dist (x1,y1) (x2,y2) =
+    (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)
+
+bigestDistance (p1:p2:ps) =
+    bigestDistance' (p1:p2:ps) (p1,p2)
+
+bigestDistance' [] res = res
+bigestDistance' (p:[]) res = res
+bigestDistance' (p1:p2:ps) (a,b) =
+    let      
+        res1 = if (dist p1 p2) > (dist a b) then (p1,p2) else (a,b)
+        res2 = bigestDistance' (p2:ps) res1
+    in
+        res2
+
+
+makeRectangleSolution :: Problem -> Solution
+makeRectangleSolution problem =
+    let
+        polygons = map polygon $ filter isFillPoly $ silhouette problem
+        (pxs,pys) = foldl (\(xs,ys) -> \p -> ((map px p) ++ xs, (map py p) ++ ys)) ([],[]) polygons
+        
+        points = zip pxs pys
+        ((x1,y1),(x2,y2)) = bigestDistance $ points
+        alpha = atan $ fromRational $ abs $ (y1-y2)/(x1-x2)
+        --alpha = trace (show (alpha'/pi*180)) alpha'
+        rotated = map (rotatePoint (Point 0 0) (-alpha)) $ map (\(x,y) -> Point x y) points
+
+        minX = minimum $ map px rotated
+        minY = minimum $ map py rotated
+        maxX = maximum $ map px rotated
+        maxY = maximum $ map py rotated
+        width = maxX - minX
+        height = maxY - minY
+
+        polygons' = map (\p -> map (rotatePoint (Point 0 0) (-alpha)) p) polygons
+
+        
+
+    in
+        rotate (Point 0 0) (alpha) $ makeRectangleSolution' width height minX minY (head polygons')
+        --makeRectangleSolution' width height minX minY (head polygons)
+    where
+        isFillPoly (PolyFill _) = True
+        isFillPoly (PolyHole _) = False
+
+
+makeRectangleSolution' :: Number -> Number -> Number -> Number -> Poly -> Solution
+makeRectangleSolution' width height minX minY points =
     if 
         (width >= 1) && (height >= 1)
     then
@@ -36,13 +84,7 @@ makeRectangleSolution points =
                 translate (Point minX minY) rectW
             else  
                 translate (Point minX minY) rect        
-    where
-        minX = minimum $ map px points
-        minY = minimum $ map py points
-        maxX = maximum $ map px points
-        maxY = maximum $ map py points
-        width = maxX - minX
-        height = maxY - minY
+    where        
         rect = foldRectangle width height
         rectH = foldRectangleH height
         rectW = foldRectangleW width
@@ -123,10 +165,14 @@ makeSolution :: Poly -> Solution
 makeSolution points =
     translate topLeft initSolution
         where
-          (topLeft, bottomRight) = bbox points
+          (topLeft, bottomRight) = bbox points        
 
 parseFirstPoly :: String -> Poly
 parseFirstPoly = polygon . head . filter isFillPoly . fst . parseSilhouette . lines
     where
       isFillPoly (PolyFill _) = True
       isFillPoly (PolyHole _) = False
+
+parseAll :: String -> Problem
+parseAll s =
+    parseProblem $ lines s
