@@ -33,4 +33,3 @@ printSolution (tl, br) = do
 
 parseFirstPoly :: String -> Poly
 parseFirstPoly = head . fst . parseSilhouette . lines
-           

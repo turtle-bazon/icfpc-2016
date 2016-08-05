@@ -19,4 +19,3 @@ showNumber v =
 showPoint :: Point -> String
 showPoint p =
     (showNumber $ px p) ++ "," ++ (showNumber $ py p)
-    
