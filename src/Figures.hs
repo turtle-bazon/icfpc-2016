@@ -1,9 +1,11 @@
 module Figures where
 
 import Data.Ratio
+import Control.Monad (foldM)
 import Algebra.Clipper
 import Common
 import Math
+import Parse
 
 toIntPoint :: Point -> IntPoint
 toIntPoint p =
@@ -71,8 +73,9 @@ silhouetteToPolygons sil =
             diffed <- polyDifference ready [poly]
             traverse' rest diffed
 
-score :: Silhouette -> [Poly] -> IO Double
-score sil facets = do
+score :: Silhouette -> Solution -> IO Double
+score sil sol = do
+  facets <- foldM polyUnion [] $ map pure $ facetsPolys sol
   siPolys <- silhouetteToPolygons sil
   pIntersect <- polyIntersect facets siPolys
   pUnion <- polyUnion facets siPolys
