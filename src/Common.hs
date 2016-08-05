@@ -18,6 +18,10 @@ type Skeleton = [Edge]
 
 data Problem = Problem { silhouette :: Silhouette, skeleton :: Skeleton } deriving (Eq, Show)
 
+polygon :: SilhouettePoly -> Poly
+polygon (PolyFill points) = points
+polygon (PolyHole points) = points
+
 showNumber :: Number -> String
 showNumber v =
     case denominator v of
