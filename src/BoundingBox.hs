@@ -62,6 +62,7 @@ printSolution ((Point minX minY), (Point maxX maxY)) = do
   putStrLn $ showPoint $ Point maxX minY
   putStrLn $ showPoint $ Point minX maxY
   putStrLn $ showPoint $ Point maxX maxY
+  putStrLn "1"
   putStrLn "4 0 1 2 3"
   putStrLn $ showPoint $ Point minX minY
   putStrLn $ showPoint $ Point maxX minY
