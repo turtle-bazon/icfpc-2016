@@ -3,6 +3,7 @@ module BoundingBox where
 import Data.Ratio
 import Common
 import Parse
+import Show
 
 bbox :: Poly -> (Point, Point)
 bbox points =

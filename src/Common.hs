@@ -31,20 +31,6 @@ polygon :: SilhouettePoly -> Poly
 polygon (PolyFill points) = points
 polygon (PolyHole points) = points
 
-showNumber :: Number -> String
-showNumber v =
-    case denominator v of
-      1 -> show $ numerator v
-      d -> (show $ numerator v) ++ "/" ++ (show d)
-
-showPoint :: Point -> String
-showPoint p =
-    (showNumber $ px p) ++ "," ++ (showNumber $ py p)
-
-showEdge :: Edge -> String
-showEdge (a, b) =
-    (showPoint a) ++ " " ++ (showPoint b)
-
 polyArea :: Poly -> Number
 polyArea poly =
     (sum chunks) / 2
@@ -58,3 +44,4 @@ silhouetteArea =
         where
           sumArea (PolyFill poly) total = total + (abs $ polyArea poly)
           sumArea (PolyHole poly) total = total - (abs $ polyArea poly)
+
