@@ -44,4 +44,3 @@ silhouetteArea =
         where
           sumArea (PolyFill poly) total = total + (abs $ polyArea poly)
           sumArea (PolyHole poly) total = total - (abs $ polyArea poly)
-

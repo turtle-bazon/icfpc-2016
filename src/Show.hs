@@ -16,5 +16,3 @@ showPoint p =
 showEdge :: Edge -> String
 showEdge (a, b) =
     (showPoint a) ++ " " ++ (showPoint b)
-                                         
-
