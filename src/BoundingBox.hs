@@ -21,17 +21,17 @@ bbox points =
 makeRectangleSolution :: Poly -> Solution
 makeRectangleSolution points =
     if 
-        (width == 1) && (height == 1)
+        (width >= 1) && (height >= 1)
     then
         makeSolution points
     else
         if
-            width == 1
+            width >= 1
         then
             translate (Point minX minY) rectH
         else
             if
-                height == 1
+                height >= 1
             then
                 translate (Point minX minY) rectW
             else  
