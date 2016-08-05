@@ -71,4 +71,7 @@ extra-package-dbs: []
 # Allow a newer minor version of GHC than the snapshot specifies
 # compiler-check: newer-minor
 
+ghc-options:
+  clipper: -optl-Wl,/usr/local/lib/libpolyclipping.10.dylib
+
 with-gcc: /usr/bin/c++
