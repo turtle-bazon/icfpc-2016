@@ -29,3 +29,10 @@ showPoint p =
 showEdge :: Edge -> String
 showEdge (a, b) =
     (showPoint a) ++ " " ++ (showPoint b)
+
+polyArea :: Poly -> Number
+polyArea poly =
+    (sum chunks) / 2
+        where
+          chunks = zipWith multiply poly (tail $ cycle poly)
+          multiply p1 p2 = ((px p1) + (px p2)) * ((py p1) - (py p2))
