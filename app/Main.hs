@@ -6,4 +6,4 @@ import Show
 main :: IO ()
 main = do
   contents <- getContents
-  putStr $ showSolution $ makeSolution $ parseFirstPoly contents
+  putStr $ showSolution $ makeRectangleSolution $ parseFirstPoly contents
