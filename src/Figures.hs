@@ -1,6 +1,5 @@
 module Figures where
 
-import Data.Ratio
 import Data.SG.Geometry.TwoDim
 import Common
 import Math
@@ -38,3 +37,14 @@ polyToGPoly poly =
 gpolyToPoly :: GPoly -> Poly
 gpolyToPoly =
     map (fst . gedgeToEdge)
+
+intersectionPoints :: Poly -> Poly -> Poly
+intersectionPoints subj clip =
+    map restore $ filter isFinite $ findAllIntersections2 (polyToGPoly subj, polyToGPoly clip)
+        where
+          isFinite ((_, fa), (_, fb)) | fa >= 0 && fa <= 1 && fb >= 0 && fb <= 1 = True
+          isFinite _ = False
+          restore ((linea, fa), _) = snd $ gedgeToEdge $ buildLine linea fa
+          buildLine line f =
+              Line2 (getLineStart2 line) $ applyFactor f (getLineDir2 line)
+          applyFactor f (Rel2 (x, y) _) = makeRel2 (x * f, y * f)
