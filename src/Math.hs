@@ -11,7 +11,7 @@ approx = flip approxRational $ epsilon
 
 negatePoint :: Point -> Point
 negatePoint point =
-    Point { px = -(px point), py = -(px point) }
+    Point { px = -(px point), py = -(py point) }
 
 translatePoint :: Point -> Point -> Point
 translatePoint delta point =
