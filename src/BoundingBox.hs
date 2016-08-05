@@ -39,7 +39,9 @@ bbox points =
     (topLeft, bottomRight)
         where
           topLeft = Point minX minY
-          bottomRight = Point maxX maxY
+          bottomRight = Point (minX + side) (minY + side)
+          -- side = max (maxX - minX) (maxY - minY)
+          side = 1 % 1
           minX = minimum $ map px points
           minY = minimum $ map py points
           maxX = maximum $ map px points
