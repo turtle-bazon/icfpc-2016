@@ -4,7 +4,6 @@ import Data.Ratio
 import Algebra.Clipper
 import Common
 import Math
-import Parse
 
 toIntPoint :: Point -> IntPoint
 toIntPoint p =
