@@ -14,4 +14,5 @@ instance JSON SilhouettePoly where
 
 instance JSON Problem where
   readJSON = undefined
-  showJSON Problem {silhouette = silhouette} = showJSON silhouette
+  showJSON Problem {silhouette = polygons, skeleton = skeleton} = makeObj [("polygons", showJSON polygons),
+                                                                           ("skeleton", showJSON skeleton)]

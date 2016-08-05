@@ -18,7 +18,7 @@ main = do
     state <- newIORef $ T.pack $ encode problem
     -- putStr $ encode problem
     clazz <- newClass [
-      defPropertyConst' "pointsJSON" (\_ -> readIORef state)
+      defPropertyConst' "problemJSON" (\_ -> readIORef state)
       ]
     ctx <- newObject clazz ()
     doc <- getDataFileName "visual.qml"

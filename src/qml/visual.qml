@@ -20,7 +20,8 @@ Window {
                 var factor = Math.sqrt(parent.width * parent.width + parent.height * parent.height);
                 ctx.lineWidth = 2 / factor;
 
-                var i = 0;
+                /* Problem polygons */
+                var i = 0; var polygons = problem.polygons;
                 for (i = 0; i < polygons.length; i++) {
                     switch (polygons[i].type) {
                     case 'fill':
@@ -49,6 +50,15 @@ Window {
                         ctx.fill();
                         ctx.stroke();
                     }
+                }
+                /* Skeleton lines */
+                ctx.strokeStyle = 'rgba(100, 100, 100, 0.8)';
+                for (i = 0; i < problem.skeleton.length; i++) {
+                    var line = problem.skeleton[i];
+                    ctx.moveTo(line[0][0], line[0][1]);
+                    ctx.lineTo(line[1][0], line[1][1]);
+                    ctx.closePath();
+                    ctx.stroke();
                 }
 
                 ctx.restore();
@@ -87,8 +97,6 @@ Window {
             ctx.lineTo(1, 0);
             ctx.stroke();
 
-            /* TODO: Grid */
-
             ctx.restore();
         }
 
@@ -96,8 +104,10 @@ Window {
             id: field;
             anchors.fill: parent;
             anchors.margins: 20;
-            source: "grid.png"
+            source: "grid.png";
+            opacity: 0.3;
         }
+
 
         Loader {
             anchors.fill: parent;
@@ -106,8 +116,7 @@ Window {
             sourceComponent: figure;
             enabled: true;
 
-            /* property var points: [[0,0], [1,0], [0.5, 0.5], [0, 0.5]]; */
-            property var polygons: JSON.parse(pointsJSON);
+            property var problem: JSON.parse(problemJSON);
         }
     }
 
