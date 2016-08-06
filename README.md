@@ -32,6 +32,11 @@ Fetching problems
 2. Change dir to repo root directory (!!!IMPORTANT!!!)
 2. Run php tools/fetch_problems.php
 
+Solution for Stack upgrade error
+================================
+stack upgrade --git --git-repo https://github.com/Sectoid/stack.git
+
+
 Links
 =====
 [1] - https://docs.haskellstack.org/en/stable/install_and_upgrade/
