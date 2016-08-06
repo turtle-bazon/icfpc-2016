@@ -335,22 +335,22 @@ foldUp y (Solution points facets) =
   let newObjects = createHorizontalUpFacets y points points [] facets
       newPoints = fst newObjects
       newFacets = snd newObjects
-  in Solution { points = newPoints
-              , facets = newFacets}
+  in normalizeSolution Solution { points = newPoints
+                                , facets = newFacets}
 
 foldRight :: Number -> Solution -> Solution
 foldRight x (Solution points facets) =
   let newObjects = createVerticalRightFacets x points points [] facets
       newPoints = fst newObjects
       newFacets = snd newObjects
-  in Solution { points = newPoints
-              , facets = newFacets}
+  in normalizeSolution Solution { points = newPoints
+                                , facets = newFacets}
 
 foldLeft :: Number -> Solution -> Solution
 foldLeft x (Solution points facets) =
   let newObjects = createVerticalLeftFacets x points points [] facets
       newPoints = fst newObjects
       newFacets = snd newObjects
-  in Solution { points = newPoints
-              , facets = newFacets}
+  in normalizeSolution Solution { points = newPoints
+                                , facets = newFacets}
 
