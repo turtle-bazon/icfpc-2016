@@ -1,10 +1,7 @@
 module SolverBBRect (solverBBRect) where
 
-import Data.Ratio
 import Common
-import Parse
 import Math
-import Show
 import SolverBBSimple
 
 makeRectangleSolution :: Poly -> Solution
