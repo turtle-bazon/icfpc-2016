@@ -33,22 +33,47 @@ fromIntPoly :: Polygon -> Poly
 fromIntPoly (Polygon ps) =
     map fromIntPoint ps
 
-makePolygons :: [Poly] -> Polygons
-makePolygons = Polygons . filter valid . map simplify . map toIntPoly
+makePolygons :: Point -> [Poly] -> Polygons
+makePolygons pivot = Polygons . filter valid . map simplify . map toIntPoly . map toOrigin
     where
+      toOrigin = map (translatePoint $ negatePoint pivot)
       simplify (Polygon pp) = Polygon $ nubBy intPointsEq pp
       valid (Polygon []) = False
       valid (Polygon [_]) = False
       valid (Polygon [_, _]) = False
       valid _ = True
 
+choosePointLB :: [Poly] -> Point
+choosePointLB = choosePointBy minimum
+
+choosePointRT :: [Poly] -> Point
+choosePointRT = choosePointBy maximum
+
+choosePointBy :: ([Number] -> Number) -> [Poly] -> Point
+choosePointBy choose polys =
+    Point { px = getPoint px, py = getPoint py }
+        where
+          getPoint f = choose $ map f points
+          points = concat polys
+
 polyOp :: (Polygons -> Polygons -> IO Polygons) -> [Poly] -> [Poly] -> IO [Poly]
 polyOp op psa psb = do
-    Polygons ps <- op (makePolygons psa) (makePolygons psb)
-    return $ map fromIntPoly ps
+  let pivot = choosePointLB $ psa ++ psb
+  Polygons ps <- op (makePolygons pivot psa) (makePolygons pivot psb)
+  return $ map (map (translatePoint pivot)) $ map fromIntPoly ps
 
 polyIntersect :: [Poly] -> [Poly] -> IO [Poly]
-polyIntersect = polyOp intersection
+polyIntersect psa psb =
+    calcIntersect
+        where
+          Point { px = lbxa, py = lbya } = choosePointLB psa
+          Point { px = rtxa, py = rtya } = choosePointRT psa
+          Point { px = lbxb, py = lbyb } = choosePointLB psb
+          Point { px = rtxb, py = rtyb } = choosePointRT psb
+          calcIntersect =
+              case rtxa < lbxb || lbxa > rtxb || rtya < lbyb || lbya > rtyb of
+                True -> return []
+                False -> polyOp intersection psa psb
 
 polyUnion :: [Poly] -> [Poly] -> IO [Poly]
 polyUnion = polyOp union
@@ -58,7 +83,8 @@ polyDifference = polyOp difference
 
 polyArea :: Poly -> IO Double
 polyArea p = do
-  let poly = toIntPoly p
+  let pivot = choosePointLB [p]
+  let (Polygons [poly]) = makePolygons pivot [p]
   areaE12 <- area poly
   return $ areaE12 / 1000000000000
 
@@ -89,7 +115,12 @@ score sil sol = do
   facets <- foldM polyUnion [] $ map pure $ facetsPolys sol
   siPolys <- silhouetteToPolygons sil
   pIntersect <- polyIntersect facets siPolys
-  pUnion <- polyUnion facets siPolys
-  pIntersectAreas <- traverse polyArea pIntersect
-  pUnionAreas <- traverse polyArea pUnion
-  return $ (sum pIntersectAreas) / (sum pUnionAreas)
+  verdict pIntersect facets siPolys
+      where
+        verdict [] _ _ = return 0
+        verdict pIntersect facets siPolys =
+            do
+              pUnion <- polyUnion facets siPolys
+              pIntersectAreas <- traverse polyArea pIntersect
+              pUnionAreas <- traverse polyArea pUnion
+              return $ (sum pIntersectAreas) / (sum pUnionAreas)
