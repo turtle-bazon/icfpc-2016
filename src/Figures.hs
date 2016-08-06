@@ -1,5 +1,6 @@
 module Figures where
 
+import Data.List (nubBy)
 import Data.Ratio
 import Control.Monad (foldM)
 import Algebra.Clipper
@@ -21,6 +22,10 @@ fromIntPoint (IntPoint x y) =
           , py = approx $ (fromIntegral y) / 1000000.0
           }
 
+intPointsEq :: IntPoint -> IntPoint -> Bool
+intPointsEq (IntPoint xa ya) (IntPoint xb yb) | xa == xb && ya == yb = True
+intPointsEq _ _ = False
+
 toIntPoly :: Poly -> Polygon
 toIntPoly = Polygon . map toIntPoint
 
@@ -28,11 +33,18 @@ fromIntPoly :: Polygon -> Poly
 fromIntPoly (Polygon ps) =
     map fromIntPoint ps
 
+makePolygons :: [Poly] -> Polygons
+makePolygons = Polygons . filter valid . map simplify . map toIntPoly
+    where
+      simplify (Polygon pp) = Polygon $ nubBy intPointsEq pp
+      valid (Polygon []) = False
+      valid (Polygon [_]) = False
+      valid (Polygon [_, _]) = False
+      valid _ = True
+
 polyOp :: (Polygons -> Polygons -> IO Polygons) -> [Poly] -> [Poly] -> IO [Poly]
 polyOp op psa psb = do
-    let ipsa = Polygons $ map toIntPoly psa
-    let ipsb = Polygons $ map toIntPoly psb
-    Polygons ps <- op ipsa ipsb
+    Polygons ps <- op (makePolygons psa) (makePolygons psb)
     return $ map fromIntPoly ps
 
 polyIntersect :: [Poly] -> [Poly] -> IO [Poly]
