@@ -74,7 +74,7 @@ function scoreSolution($solutionInfo) {
   }
 
   $scoreTool .= ' exec score-solution -- ';
-  $score = system($scoreTool . ' ' . $solutionInfo['problem_filename'] . ' ' . $solutionInfo['filename']);
+  $score = @system($scoreTool . ' ' . $solutionInfo['problem_filename'] . ' ' . $solutionInfo['filename']);
   if (!is_numeric($score)) {
     $problemID = $solutionInfo['problem_id'];
     echo "$problemID: Unable to determine solution score. Defaulting to 0.0\n";
