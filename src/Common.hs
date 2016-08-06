@@ -34,9 +34,9 @@ initSolution =
              , facets = [[0, 1, 2, 3]] }
         where
           points = [ IndexedPoint { index = 0, srcvertex = Point { px = 0, py = 0 }, dstvertex = Point { px = 0, py = 0 } }
-                   , IndexedPoint { index = 1, srcvertex = Point { px = 1, py = 0 }, dstvertex = Point { px = 0, py = 0 } }
-                   , IndexedPoint { index = 2, srcvertex = Point { px = 1, py = 1 }, dstvertex = Point { px = 0, py = 0 } }
-                   , IndexedPoint { index = 3, srcvertex = Point { px = 0, py = 1 }, dstvertex = Point { px = 0, py = 0 } }
+                   , IndexedPoint { index = 1, srcvertex = Point { px = 1, py = 0 }, dstvertex = Point { px = 1, py = 0 } }
+                   , IndexedPoint { index = 2, srcvertex = Point { px = 1, py = 1 }, dstvertex = Point { px = 1, py = 1 } }
+                   , IndexedPoint { index = 3, srcvertex = Point { px = 0, py = 1 }, dstvertex = Point { px = 0, py = 1 } }
                    ]
 
 polygon :: SilhouettePoly -> Poly

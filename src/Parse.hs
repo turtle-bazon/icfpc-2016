@@ -64,7 +64,7 @@ parseSource :: [String] -> ([Point], [String])
 parseSource (pointsCountStr : restLines) =
     (parsedPoints, otherLines)
         where
-          parsedPoints = (map parsePoint pointLines)
+          parsedPoints = map parsePoint pointLines
           count = read pointsCountStr
           pointLines = take count restLines
           otherLines = drop count restLines
@@ -82,7 +82,7 @@ parseDestination :: Int -> [String] -> ([Point], [String])
 parseDestination count restLines =
     (parsedPoints, otherLines)
         where
-          parsedPoints = (map parsePoint pointLines)
+          parsedPoints = map parsePoint pointLines
           pointLines = take count restLines
           otherLines = drop count restLines
 
