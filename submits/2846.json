@@ -1,1 +1,1 @@
-{"ok":false,"error":"Rate limit exceeded (per-hour limit)."}
+{"ok":false,"error":"Invalid solution spec: Facet #0 is not mapped congruently."}
