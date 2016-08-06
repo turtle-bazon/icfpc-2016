@@ -1,1 +1,1 @@
-{"ok":false,"error":"Invalid solution_spec."}
+{"ok":false,"error":"Invalid solution spec: Parse error in the number of source vertices."}
