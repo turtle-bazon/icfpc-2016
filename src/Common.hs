@@ -4,7 +4,7 @@ import Data.Ratio
 
 type Number = Ratio Integer
 
-data Point = Point { px :: Number, py :: Number } deriving (Eq, Show)
+data Point = Point { px :: Number, py :: Number } deriving (Eq, Ord, Show)
 
 type Poly = [Point]
 
