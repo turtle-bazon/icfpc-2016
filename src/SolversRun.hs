@@ -22,12 +22,18 @@ solvers = [ Solver { name = "simple bbox", solve = solverBBSimple }
           , Solver { name = "rotate bbox", solve = solverBBRotate }
           ]
 
-loadProblem :: String -> IO Problem
-loadProblem filename = do
+loadFile :: ( [String] -> a ) -> String -> IO a
+loadFile parser filename = do
     fd <- openFile filename ReadMode
     contents <- hGetContents fd
     contents `deepseq` hClose fd
-    return $ parseProblem $ lines contents
+    return $ parser $ lines contents
+
+loadProblem :: String -> IO Problem
+loadProblem = loadFile parseProblem
+
+loadSolution :: String -> IO Solution
+loadSolution = loadFile parseSolution
 
 loadAllProblems :: String -> IO [(String, Problem)]
 loadAllProblems dir = do
