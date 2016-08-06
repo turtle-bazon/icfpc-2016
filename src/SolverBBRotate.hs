@@ -27,7 +27,9 @@ makeRectangleSolution problem =
 
         points = zip pxs pys
         ((x1,y1),(x2,y2)) = bigestDistance $ points
-        alpha = atan $ fromRational $ abs $ (y1-y2)/(x1-x2)
+        alpha = case x1 - x2 of
+                  0 -> 0
+                  other -> atan $ fromRational $ abs $ (y1-y2)/other
         rotated = map (rotatePoint (Point 0 0) (-alpha)) $ map (\(x,y) -> Point x y) points
 
         minX = minimum $ map px rotated
