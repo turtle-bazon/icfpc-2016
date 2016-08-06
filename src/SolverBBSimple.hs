@@ -1,4 +1,4 @@
-module SolverBBSimple (solverBBSimple) where
+module SolverBBSimple (solverBBSimple, bbox, parseFirstPoly, makeBBSolution) where
 
 import Data.Ratio
 import Common
@@ -15,8 +15,8 @@ bbox points =
           maxX = maximum $ map px points
           maxY = maximum $ map py points
 
-makeSolution :: Poly -> Solution
-makeSolution points =
+makeBBSolution :: Poly -> Solution
+makeBBSolution points =
     translate topLeft initSolution
         where
           (topLeft, bottomRight) = bbox points
@@ -28,4 +28,4 @@ parseFirstPoly = polygon . head . filter isFillPoly
       isFillPoly (PolyHole _) = False
 
 solverBBSimple :: Problem -> Solution
-solverBBSimple = makeSolution . parseFirstPoly . silhouette
+solverBBSimple = makeBBSolution . parseFirstPoly . silhouette
