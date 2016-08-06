@@ -62,8 +62,9 @@ parseProblem lines =
 
 parseSource :: [String] -> ([IndexedPoint], [String])
 parseSource (pointsCountStr : restLines) =
-    (zipWith IndexedPoint [0 ..] (map parsePoint pointLines), otherLines)
+    ((map (\(ind, p) -> IndexedPoint { index = ind, srcvertex = p, dstvertex = p }) $ zip [0 ..] parsedPoints), otherLines)
         where
+          parsedPoints = (map parsePoint pointLines)
           count = read pointsCountStr
           pointLines = take count restLines
           otherLines = drop count restLines
@@ -79,14 +80,15 @@ parseFacets (polysCountStr : restLines) =
 
 parseDestination :: Int -> [String] -> ([IndexedPoint], [String])
 parseDestination count restLines =
-    (zipWith IndexedPoint [0 ..] (map parsePoint pointLines), otherLines)
+    ((map (\(ind, p) -> IndexedPoint { index = ind, srcvertex = p, dstvertex = p }) $ zip [0 ..] parsedPoints), otherLines)
         where
+          parsedPoints = (map parsePoint pointLines)
           pointLines = take count restLines
           otherLines = drop count restLines
 
 parseSolution :: [String] -> Solution
 parseSolution lines =
-    Solution { src = src, facets = facets, dst = dst }
+    Solution { points = src, facets = facets }
         where
           (src, facetsLines) = parseSource lines
           (facets, dstLines) = parseFacets facetsLines

@@ -14,28 +14,33 @@ negatePoint :: Point -> Point
 negatePoint point =
     Point { px = -(px point), py = -(py point) }
 
-translatePoint :: Point -> Point -> Point
-translatePoint delta point =
-    Point { px = (px delta) + (px point), py = (py delta) + (py point) }
-
-rotatePoint :: Point -> Float -> Point -> Point
+translatePoint :: Point -> IndexedPoint -> IndexedPoint
+translatePoint delta (IndexedPoint index srcvertex dstvertex) =
+  IndexedPoint { index = index
+               , srcvertex = srcvertex
+               , dstvertex = Point { px = (px delta) + (px dstvertex), py = (py delta) + (py dstvertex) }}
+    
+rotatePoint :: Point -> Float -> IndexedPoint -> IndexedPoint
 rotatePoint pivot angle =
-    fromOrigin . rotate . toOrigin
-        where
-          toOrigin = translatePoint (negatePoint pivot)
-          fromOrigin = translatePoint pivot
-          rotate p = Point { px = ((px p) * (approx $ cos angle)) - ((py p) * (approx $ sin angle))
-                           , py = ((py p) * (approx $ cos angle)) + ((px p) * (approx $ sin angle))
-                           }
+  fromOrigin . rotate . toOrigin
+  where
+    toOrigin = translatePoint (negatePoint pivot)
+    fromOrigin = translatePoint pivot
+    rotate (IndexedPoint index srcvertex dstvertex) =
+      IndexedPoint { index = index
+                   , srcvertex = srcvertex
+                   , dstvertex = Point { px = ((px dstvertex) * (approx $ cos angle)) - ((py dstvertex) * (approx $ sin angle))
+                                       , py = ((py dstvertex) * (approx $ cos angle)) + ((px dstvertex) * (approx $ sin angle))
+                                       }}
 
 translate :: Point -> Solution -> Solution
 translate delta solution =
-    solution { dst = map (\p -> p { vertex = translatePoint delta $ vertex p }) $ dst solution }
-
+    solution { points = map (translatePoint delta) $ points solution }
+    
 rotate :: Point -> Float -> Solution -> Solution
 rotate pivot angle solution =
-    solution { dst = map (\p -> p { vertex = rotatePoint pivot angle $ vertex p }) $ dst solution }
-
+    solution { points = map (rotatePoint pivot angle) $ points solution }
+    
 fold :: Edge -> Solution -> Solution
 fold segment solution =
     undefined
