@@ -1,11 +1,21 @@
 #!/bin/sh
 
+if [ $# -ne 1 ]; then
+    echo "Usage";
+    echo "$0 <solution dir>"
+    exit -1
+fi
+
+SOLUTION_DIR=$1
+
 PROBLEM_NUMBERS=$(for i in problems/*.txt; do echo $(basename $i .txt); done|sort -g)
 
-for i in $PROBLEM_NUMBERS; do 
+mkdir -p submits/$SOLUTION_DIR
+
+for i in $PROBLEM_NUMBERS; do
   PROBLEM=$i
-  SOLUTION=problems/bbrects/$PROBLEM.txt
-  curl --compressed -L -H Expect: -H 'X-API-Key: 41-736c4fa841ea2c5e62c5991086b87886' -F "problem_id=$PROBLEM" -F "solution_spec=@$SOLUTION" 'http://2016sv.icfpcontest.org/api/solution/submit' > submits/bbrects/$PROBLEM.txt
+  SOLUTION=problems/$SOLUTION_DIR/$PROBLEM.txt
+  curl --compressed -L -H Expect: -H 'X-API-Key: 41-736c4fa841ea2c5e62c5991086b87886' -F "problem_id=$PROBLEM" -F "solution_spec=@$SOLUTION" 'http://2016sv.icfpcontest.org/api/solution/submit' > submits/$SOLUTION_DIR/$PROBLEM.txt
   echo ""
   sleep 1.5
 done
