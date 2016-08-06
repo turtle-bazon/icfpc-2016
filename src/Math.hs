@@ -336,7 +336,7 @@ normalizeSolution (Solution points facets) =
   let groupedPoints = groupBy (\pa pb -> (srcvertex pa) == (srcvertex pb)) $ sortBy (\pa pb -> compare (srcvertex pa) (srcvertex pb)) points
       duplicates = map (\l -> let (x:xs) = (sort l)
                               in (x, xs)) $ filter (\v -> (length v) > 1) $ map (\plist -> (map (\ip -> (index ip)) plist)) groupedPoints
-  in normalizeSolutionDev duplicates (Solution { points = sortBy (\ip1 ip2 -> compare (index ip1) (index ip2)) points
+  in normalizeSolutionDev duplicates (Solution { points = sortOn index points
                                                , facets = facets})
 
 foldDown :: Number -> Solution -> Solution
