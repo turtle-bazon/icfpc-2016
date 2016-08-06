@@ -19,7 +19,7 @@ data Rating = Rating { solverName :: String, solution :: Solution, similarity ::
 solvers :: [Solver]
 solvers = [ Solver { name = "simple bbox", solve = solverBBSimple }
           , Solver { name = "rect bbox", solve = solverBBRect }
-          , Solver { name = "rotate bbox", solve = solverBBRotate }
+          -- , Solver { name = "rotate bbox", solve = solverBBRotate }
           ]
 
 loadFile :: ( [String] -> a ) -> String -> IO a
