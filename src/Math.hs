@@ -1,5 +1,6 @@
 module Math where
 
+import Debug.Trace
 import Data.List
 import Data.Maybe
 import Data.Ratio
@@ -171,8 +172,8 @@ createHorizontalDownFacets y points newPoints newFacets (currentFacet:restFacets
                                                         py = (py (srcvertex pd)) + signum ((py (srcvertex pa)) - (py (srcvertex pd))) * dy }
                                   , dstvertex = Point { px = x1, py = y1 } }
              newp2 = IndexedPoint { index = id2
-                                  , srcvertex = Point { px = (px (srcvertex pb)),
-                                                        py = (py (srcvertex pb)) + signum ((py (srcvertex pc)) - (py (srcvertex pb))) * dy }
+                                  , srcvertex = Point { px = (px (srcvertex pc)),
+                                                        py = (py (srcvertex pc)) + signum ((py (srcvertex pb)) - (py (srcvertex pc))) * dy }
                                   , dstvertex = Point { px = x2, py = y2 }}
              newFacet1 = [(index pa), (index pb), id2, id1]
              newFacet2 = [id1, id2, (index pc), (index pd)]
@@ -208,8 +209,8 @@ createHorizontalUpFacets y points newPoints newFacets (currentFacet:restFacets) 
                                                         py = (py (srcvertex pd)) + signum ((py (srcvertex pa)) - (py (srcvertex pd))) * dy }
                                   , dstvertex = Point { px = x1, py = y1 } }
              newp2 = IndexedPoint { index = id2
-                                  , srcvertex = Point { px = (px (srcvertex pb)),
-                                                        py = (py (srcvertex pb)) + signum ((py (srcvertex pc)) - (py (srcvertex pb))) * dy }
+                                  , srcvertex = Point { px = (px (srcvertex pc)),
+                                                        py = (py (srcvertex pc)) + signum ((py (srcvertex pb)) - (py (srcvertex pc))) * dy }
                                   , dstvertex = Point { px = x2, py = y2 }}
              newFacet1 = [(index pa), (index pb), id2, id1]
              newFacet2 = [id1, id2, (index pc), (index pd)]
@@ -245,8 +246,8 @@ createVerticalRightFacets x points newPoints newFacets (currentFacet:restFacets)
                                                         py = (py (srcvertex pa)) }
                                   , dstvertex = Point { px = x1, py = y1 } }
              newp2 = IndexedPoint { index = id2
-                                  , srcvertex = Point { px = (px (srcvertex pb)) + signum ((px (srcvertex pc)) - (px (srcvertex pb))) * dx,
-                                                        py = (py (srcvertex pb)) }
+                                  , srcvertex = Point { px = (px (srcvertex pc)) + signum ((px (srcvertex pb)) - (px (srcvertex pc))) * dx,
+                                                        py = (py (srcvertex pc)) }
                                   , dstvertex = Point { px = x2, py = y2 } }
              newFacet1 = [(index pa), (index pb), id2, id1]
              newFacet2 = [id1, id2, (index pc), (index pd)]
@@ -282,8 +283,8 @@ createVerticalLeftFacets x points newPoints newFacets (currentFacet:restFacets) 
                                                         py = (py (srcvertex pa)) }
                                   , dstvertex = Point { px = x1, py = y1 } }
              newp2 = IndexedPoint { index = id2
-                                  , srcvertex = Point { px = (px (srcvertex pb)) + signum ((px (srcvertex pc)) - (px (srcvertex pb))) * dx,
-                                                        py = (py (srcvertex pb)) }
+                                  , srcvertex = Point { px = (px (srcvertex pc)) + signum ((px (srcvertex pb)) - (px (srcvertex pc))) * dx,
+                                                        py = (py (srcvertex pc)) }
                                   , dstvertex = Point { px = x2, py = y2 } }
              newFacet1 = [(index pa), (index pb), id2, id1]
              newFacet2 = [id1, id2, (index pc), (index pd)]
