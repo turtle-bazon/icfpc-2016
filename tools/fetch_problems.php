@@ -93,9 +93,19 @@ echo "Found " . count($problems) . " problems\n";
 
 foreach($problems as $problem) {
   $problemID = $problem['problem_id']; $problemHash = $problem['problem_spec_hash'];
+  $problemFile = 'problems/' . $problemID . '.txt';
+  if (file_exists($problemFile)) {
+    $problemBody = file_get_contents($problemFile);
+    $problemFileHash = sha1($problemBody);
+    if ($problemFileHash == $problemHash) {
+      echo "Problem {$problemID} is already present. Skipping...\n";
+      continue;
+    }
+  }
+
   echo "Fetching problem " . $problemID . " (" . $problemHash . ")\n";
   $resp = httpGet('http://2016sv.icfpcontest.org/api/blob/' . $problemHash, false);
-  file_put_contents('problems/' . $problemID . '.txt', $resp);
+  file_put_contents($problemFile, $resp);
 }
 
 echo "Done!\n";
