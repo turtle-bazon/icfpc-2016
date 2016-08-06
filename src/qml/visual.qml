@@ -18,11 +18,19 @@ Window {
                 ctx.scale(parent.width, -parent.height);
 
                 var factor = Math.sqrt(parent.width * parent.width + parent.height * parent.height);
-                ctx.lineWidth = 2 / factor;
 
                 /* Start point for problem */
                 var dx = problem.bbox[0][0];
                 var dy = problem.bbox[0][1];
+
+                /* Scale up to make figure fit the page */
+                var probWidth = Math.abs(problem.bbox[0][0] - problem.bbox[1][0]);
+                var probHeight = Math.abs(problem.bbox[0][1] - problem.bbox[1][1]);
+                var figureFactor = Math.max(probWidth, probHeight);
+                ctx.scale(1.0 / figureFactor, 1.0/figureFactor);
+
+                factor = factor / figureFactor;
+                ctx.lineWidth = 2 / factor;
 
                 /* Problem polygons */
                 var i = 0; var polygons = problem.polygons;
