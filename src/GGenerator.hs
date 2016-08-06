@@ -2,6 +2,7 @@ module GGenerator where
 
 import Data.Ratio
 import Common
+import Math
 import Parse
 import Show
 
@@ -12,10 +13,10 @@ enumeratePoints points =
 
 -- foldG n w 
 -- generates symbol Г using line with thinckness 1/n and bend on distance w from end point
--- n should be in range [2;+INF]. Bigger n => thinner line => bigger solution file size in bytes
+-- n should be in range [2;+INF]. Bigger n => thinner line => bigger solution file size in bytes. 
 -- w should be in range (0;1).
 
--- USAGE EXAMPLE: ghci> putStrLn $ showSolution $ foldG 20 (1%11)
+-- USAGE EXAMPLE: ghci> putStrLn $ showSolution $ rotate (Point 0 0) pi/17 $ foldG 20 (1%11)
 
 foldG :: Integer -> Number -> Solution
 foldG n w =
@@ -39,3 +40,7 @@ foldG n w =
         Solution { src = enumeratePoints acb,
                    facets = facetsA ++ facetsB,
                    dst = acb' }
+
+generateG :: Integer -> Number -> Float -> Solution
+generateG n w angle =
+	rotate (Point (1%2) (1%2)) angle $ foldG n w
