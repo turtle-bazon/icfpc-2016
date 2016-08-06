@@ -22,7 +22,7 @@ Installing clipper
 2. `% cd cpp`
 3. `% cmake .`
 4. `% make && sudo make install`
-5. Make sure you have git version of `stack`. If not, run `% stack upgrade --git`.
+5. Make sure you have git version of `stack`. If not, run `% stack upgrade --git --git-repo https://github.com/Sectoid/stack.git`.
 6. Uncomment relevant `ghc-options` section in `stack.yaml`
 
 Fetching problems
