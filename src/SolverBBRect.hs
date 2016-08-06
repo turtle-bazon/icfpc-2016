@@ -108,5 +108,5 @@ foldRectangle width height =
                , facets = [[0, 1, 4, 3], [1, 2, 5, 4], [3, 4, 7, 6], [4, 5, 8, 7]]
                }
 
-solverBBRect :: Problem -> Solution
-solverBBRect = makeRectangleSolution . parseFirstPoly . silhouette
+solverBBRect :: Problem -> IO Solution
+solverBBRect = return . makeRectangleSolution . parseFirstPoly . silhouette

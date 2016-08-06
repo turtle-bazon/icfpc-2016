@@ -1,6 +1,5 @@
 module Math where
 
-import Debug.Trace
 import Data.List
 import Data.Maybe
 import Data.Ratio
@@ -31,6 +30,22 @@ rotatePoint pivot angle =
                            , py = ((py p) * (approx $ cos angle)) + ((px p) * (approx $ sin angle))
                            }
 
+rotatePointTo :: Point -> Edge -> Point -> Point
+rotatePointTo pivot ((Point x1 y1), (Point x2 y2)) =
+  fromOrigin . rotate . toOrigin
+  where
+    toOrigin = translatePoint (negatePoint pivot)
+    fromOrigin = translatePoint pivot
+    rotate p = let d2 = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)
+                   d = approx $ sqrt $ fromRational d2
+                   dx = x2 - x1
+                   dy = y2 - y1
+                   cosangle = dx / d
+                   sinangle = dy / d
+               in Point { px = ((px p) * cosangle) - ((py p) * sinangle)
+                        , py = ((py p) * cosangle) + ((px p) * sinangle)
+                         }
+
 translate :: Point -> Solution -> Solution
 translate delta solution =
     solution { points = map translateDst $ points solution }
@@ -42,6 +57,12 @@ rotate pivot angle solution =
     solution { points = map rotateDst $ points solution }
         where
           rotateDst p = p { dstvertex = rotatePoint pivot angle $ dstvertex p }
+
+rotateTo :: Point -> Edge -> Solution -> Solution
+rotateTo pivot edge solution =
+    solution { points = map rotateDst $ points solution }
+        where
+          rotateDst p = p { dstvertex = rotatePointTo pivot edge $ dstvertex p }
 
 fold :: Edge -> Solution -> Solution
 fold segment solution =
@@ -315,7 +336,7 @@ normalizeSolution (Solution points facets) =
   let groupedPoints = groupBy (\pa pb -> (srcvertex pa) == (srcvertex pb)) $ sortBy (\pa pb -> compare (srcvertex pa) (srcvertex pb)) points
       duplicates = map (\l -> let (x:xs) = (sort l)
                               in (x, xs)) $ filter (\v -> (length v) > 1) $ map (\plist -> (map (\ip -> (index ip)) plist)) groupedPoints
-  in normalizeSolutionDev duplicates (Solution { points = points
+  in normalizeSolutionDev duplicates (Solution { points = sortOn index points
                                                , facets = facets})
 
 foldDown :: Number -> Solution -> Solution
@@ -350,3 +371,6 @@ foldLeft x (Solution points facets) =
   in normalizeSolution Solution { points = newPoints
                                 , facets = newFacets}
 
+foldByEdge :: Edge -> Solution -> Solution
+foldByEdge edge solution =
+    undefined

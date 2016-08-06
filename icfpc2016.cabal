@@ -17,11 +17,12 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Common Parse Math Show Visualize Figures SolversRun SolverBBSimple SolverBBRect SolverBBRotate
+  exposed-modules:     Common Parse Math Show Visualize Figures SolversRun SolverBBSimple SolverBBRect SolverBBRotate SolverRandomSearch
   build-depends:       base >= 4.7 && < 5
                      , clipper
                      , deepseq >= 1.4.1.1
                      , directory >= 1.2.2.0
+                     , random >= 1.1
                      , json
   default-language:    Haskell2010
 

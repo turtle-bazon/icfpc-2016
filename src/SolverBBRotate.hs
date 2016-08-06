@@ -71,5 +71,5 @@ makeRectangleSolution' width height minX minY points =
         rectH = foldRectangleH height
         rectW = foldRectangleW width
 
-solverBBRotate :: Problem -> Solution
-solverBBRotate = makeRectangleSolution
+solverBBRotate :: Problem -> IO Solution
+solverBBRotate = return . makeRectangleSolution

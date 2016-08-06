@@ -18,5 +18,3 @@ main = do
         processArgs _ = do
           processName <- getProgName
           putStrLn $ "Usage: " ++ processName ++ " <problem file> <solution file>"
-  
-  
