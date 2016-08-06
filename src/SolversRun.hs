@@ -10,14 +10,16 @@ import Figures
 import Show
 import SolverBBSimple
 import SolverBBRect
+import SolverBBRotate
 
 data Solver = Solver { name :: String, solve :: Problem -> Solution }
 
-data Rating = Rating { solverName :: String, solution :: Solution, similarity :: Double }
+data Rating = Rating { solverName :: String, solution :: Solution, similarity :: Double } deriving (Show)
 
 solvers :: [Solver]
 solvers = [ Solver { name = "simple bbox", solve = solverBBSimple }
           , Solver { name = "rect bbox", solve = solverBBRect }
+          , Solver { name = "rotate bbox", solve = solverBBRotate }
           ]
 
 loadProblem :: String -> IO Problem

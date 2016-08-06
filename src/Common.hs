@@ -23,7 +23,7 @@ data Problem = Problem { silhouette :: Silhouette, skeleton :: Skeleton } derivi
 type PointIndex = Int
 
 data IndexedPoint = IndexedPoint { index :: PointIndex, srcvertex :: Point, dstvertex :: Point } deriving (Eq, Show)
-                    
+
 type FacetPoly = [PointIndex]
 
 data Solution = Solution { points :: [IndexedPoint], facets :: [FacetPoly] } deriving (Eq, Show)
@@ -55,4 +55,4 @@ facetsPolys sol =
     map restorePoly $ facets sol
         where
           restorePoly indices = map restorePoint indices
-          restorePoint idx = srcvertex $ fromJust $ find ((== idx) . index) $ points sol
+          restorePoint idx = dstvertex $ fromJust $ find ((== idx) . index) $ points sol

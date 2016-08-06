@@ -60,9 +60,9 @@ parseProblem lines =
           (silhouette, skeletonLines) = parseSilhouette lines
           (skeleton, []) = parseSkeleton skeletonLines
 
-parseSource :: [String] -> ([IndexedPoint], [String])
+parseSource :: [String] -> ([Point], [String])
 parseSource (pointsCountStr : restLines) =
-    ((map (\(ind, p) -> IndexedPoint { index = ind, srcvertex = p, dstvertex = p }) $ zip [0 ..] parsedPoints), otherLines)
+    (parsedPoints, otherLines)
         where
           parsedPoints = (map parsePoint pointLines)
           count = read pointsCountStr
@@ -78,9 +78,9 @@ parseFacets (polysCountStr : restLines) =
           otherLines = drop count restLines
           parseFacetPoly = tail . map read . words
 
-parseDestination :: Int -> [String] -> ([IndexedPoint], [String])
+parseDestination :: Int -> [String] -> ([Point], [String])
 parseDestination count restLines =
-    ((map (\(ind, p) -> IndexedPoint { index = ind, srcvertex = p, dstvertex = p }) $ zip [0 ..] parsedPoints), otherLines)
+    (parsedPoints, otherLines)
         where
           parsedPoints = (map parsePoint pointLines)
           pointLines = take count restLines
@@ -88,7 +88,7 @@ parseDestination count restLines =
 
 parseSolution :: [String] -> Solution
 parseSolution lines =
-    Solution { points = src, facets = facets }
+    Solution { points = zipWith3 IndexedPoint [0 ..] src dst, facets = facets }
         where
           (src, facetsLines) = parseSource lines
           (facets, dstLines) = parseFacets facetsLines

@@ -3,6 +3,7 @@ module SolverBBRotate (solverBBRotate) where
 import Common
 import Math
 import SolverBBSimple
+import SolverBBRect
 
 dist (x1,y1) (x2,y2) =
     (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)
@@ -69,81 +70,6 @@ makeRectangleSolution' width height minX minY points =
         rect = foldRectangle width height
         rectH = foldRectangleH height
         rectW = foldRectangleW width
-
-foldRectangleW :: Number -> Solution
-foldRectangleW width =
-    let
-        a = Point 0 0
-        b = Point width 0
-        c = Point 1 0
-        d = Point 0 1
-        e = Point width 1
-        f = Point 1 1
-
-        a' = Point 0 0
-        b' = Point width 0
-        c' = Point (2*width - 1) 0
-        d' = Point 0 1
-        e' = Point width 1
-        f' = Point (2*width - 1) 1
-        src = [ a,  b,  c,  d,  e,  f ]
-        dst = [ a', b', c', d', e', f' ]
-    in
-      Solution { points = zipWith3 IndexedPoint [0 ..] src dst
-               , facets = [[0, 1, 4, 3], [1, 2, 5, 4]]
-               }
-
-foldRectangleH :: Number -> Solution
-foldRectangleH height =
-    let
-        a = Point 0 0
-        b = Point 1 0
-        c = Point 0 height
-        d = Point 1 height
-        e = Point 0 1
-        f = Point 1 1
-
-        a' = Point 0 0
-        b' = Point 1 0
-        c' = Point 0 height
-        d' = Point 1 height
-        e' = Point 0 (2*height - 1)
-        f' = Point 1 (2*height - 1)
-        src = [ a,  b,  c,  d,  e,  f ]
-        dst = [ a', b', c', d', e', f' ]
-    in
-      Solution { points = zipWith3 IndexedPoint [0 ..] src dst
-               , facets = [[0, 1, 3, 2], [2, 3, 5, 4]]
-               }
-
-foldRectangle :: Number -> Number -> Solution
-foldRectangle width height =
-    let
-        a = Point 0 0
-        b = Point width 0
-        c = Point 1 0
-        d = Point 0 height
-        e = Point width height
-        f = Point 1 height
-        g = Point 0 1
-        h = Point width 1
-        j = Point 1 1
-
-        a' = Point 0 0
-        b' = Point width 0
-        c' = Point (2*width - 1) 0
-        d' = Point 0 height
-        e' = Point width height
-        f' = Point (2*width - 1) height
-        g' = Point 0 (2*height - 1)
-        h' = Point width (2*height - 1)
-        j' = Point (2*width - 1) (2*height - 1)
-        src = [ a,  b,  c,  d,  e,  f,  g,  h,  j ]
-        dst = [ a', b', c', d', e', f', g', h', j' ]
-    in
-      Solution { points = zipWith3 IndexedPoint [0 ..] src dst
-               , facets = [[0, 1, 4, 3], [1, 2, 5, 4], [3, 4, 7, 6], [4, 5, 8, 7]]
-               }
 
 solverBBRotate :: Problem -> Solution
 solverBBRotate = makeRectangleSolution
