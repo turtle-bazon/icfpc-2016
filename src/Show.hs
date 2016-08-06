@@ -23,9 +23,9 @@ showSolution :: Solution -> String
 showSolution sol =
     showSrc ++ showFacets ++ showDst
         where
-          showSrc = (showTotal $ src sol) ++ (showList $ map (showPoint . vertex) $ src sol)
+          showSrc = (showTotal $ points sol) ++ (showList $ map (showPoint . srcvertex) $ points sol)
           showFacets = (showTotal $ facets sol) ++ (showList $ map showFacet $ facets sol)
           showFacet indices = unwords $ (show $ length indices) : (map show indices)
-          showDst = showList $ map (showPoint . vertex) $ dst sol
+          showDst = showList $ map (showPoint . dstvertex) $ points sol
           showList = foldr (\v acc -> v ++ "\n" ++ acc) ""
           showTotal l = (show $ length l) ++ "\n"

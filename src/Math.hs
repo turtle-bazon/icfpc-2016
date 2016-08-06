@@ -30,11 +30,15 @@ rotatePoint pivot angle =
 
 translate :: Point -> Solution -> Solution
 translate delta solution =
-    solution { dst = map (\p -> p { vertex = translatePoint delta $ vertex p }) $ dst solution }
+    solution { points = map translateDst $ points solution }
+        where
+          translateDst p = p { dstvertex = translatePoint delta $ dstvertex p }
 
 rotate :: Point -> Float -> Solution -> Solution
 rotate pivot angle solution =
-    solution { dst = map (\p -> p { vertex = rotatePoint pivot angle $ vertex p }) $ dst solution }
+    solution { points = map rotateDst $ points solution }
+        where
+          rotateDst p = p { dstvertex = rotatePoint pivot angle $ dstvertex p }
 
 fold :: Edge -> Solution -> Solution
 fold segment solution =

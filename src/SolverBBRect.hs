@@ -1,4 +1,4 @@
-module SolverBBRect (solverBBRect) where
+module SolverBBRect (solverBBRect, foldRectangleW, foldRectangleH, foldRectangle) where
 
 import Common
 import Math
@@ -49,11 +49,12 @@ foldRectangleW width =
         d' = Point 0 1
         e' = Point width 1
         f' = Point (2*width - 1) 1
-        enumeratePoints points = map (\(i,v) -> IndexedPoint { index = i, vertex = v }) $ zip [0..] points
+        src = [ a,  b,  c,  d,  e,  f ]
+        dst = [ a', b', c', d', e', f' ]
     in
-        Solution { src = enumeratePoints [a, b, c, d, e, f],
-                   facets = [[0, 1, 4, 3], [1, 2, 5, 4]],
-                   dst = enumeratePoints [a', b', c', d', e', f'] }
+      Solution { points = zipWith3 IndexedPoint [0 ..] src dst
+               , facets = [[0, 1, 4, 3], [1, 2, 5, 4]]
+               }
 
 foldRectangleH :: Number -> Solution
 foldRectangleH height =
@@ -71,12 +72,12 @@ foldRectangleH height =
         d' = Point 1 height
         e' = Point 0 (2*height - 1)
         f' = Point 1 (2*height - 1)
-        enumeratePoints points = map (\(i,v) -> IndexedPoint { index = i, vertex = v }) $ zip [0..] points
+        src = [ a,  b,  c,  d,  e,  f ]
+        dst = [ a', b', c', d', e', f' ]
     in
-        Solution { src = enumeratePoints [a, b, c, d, e, f],
-                   facets = [[0, 1, 3, 2], [2, 3, 5, 4]],
-                   dst = enumeratePoints [ a', b', c', d', e', f' ] }
-
+      Solution { points = zipWith3 IndexedPoint [0 ..] src dst
+               , facets = [[0, 1, 3, 2], [2, 3, 5, 4]]
+               }
 
 foldRectangle :: Number -> Number -> Solution
 foldRectangle width height =
@@ -100,11 +101,12 @@ foldRectangle width height =
         g' = Point 0 (2*height - 1)
         h' = Point width (2*height - 1)
         j' = Point (2*width - 1) (2*height - 1)
-        enumeratePoints points = map (\(i,v) -> IndexedPoint { index = i, vertex = v }) $ zip [0..] points
+        src = [ a,  b,  c,  d,  e,  f,  g,  h,  j ]
+        dst = [ a', b', c', d', e', f', g', h', j' ]
     in
-        Solution { src = enumeratePoints [a, b, c, d, e, f, g, h, j],
-                   facets = [[0, 1, 4, 3], [1, 2, 5, 4], [3, 4, 7, 6], [4, 5, 8, 7]],
-                   dst = enumeratePoints [ a', b', c', d', e', f', g', h', j' ] }
+      Solution { points = zipWith3 IndexedPoint [0 ..] src dst
+               , facets = [[0, 1, 4, 3], [1, 2, 5, 4], [3, 4, 7, 6], [4, 5, 8, 7]]
+               }
 
 solverBBRect :: Problem -> Solution
 solverBBRect = makeRectangleSolution . parseFirstPoly . silhouette
