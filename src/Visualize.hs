@@ -2,7 +2,7 @@ module Visualize where
 
 import Text.JSON
 import Common
-import BoundingBox
+import SolverBBSimple
 
 instance JSON Point where
   readJSON = undefined
@@ -22,7 +22,7 @@ makeProblemModel :: Problem -> JSValue
 makeProblemModel problem@(Problem {silhouette = polygons, skeleton = skeleton})
   = makeObj [("polygons", showJSON polygons),
              ("skeleton", showJSON skeleton),
-             ("bbox", showJSON $ bbox' polygons)]
+             ("bbox", showJSON $ bbox $ parseFirstPoly polygons)]
 
 -- Solution JSON serialization
 
