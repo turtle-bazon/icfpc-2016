@@ -1,0 +1,36 @@
+Fedors-MacBook-Pro:icfpc-2016 fedor$ ~/.local/bin/stack build
+Populated index cache.
+Did not find .cabal file for time-parsers-0.1.0.0 with Git SHA of ab587516bfbdef95a0b7ae0171584b05760990eb
+Did not find .cabal file for pointful-1.0.8 with Git SHA of 86d81719d7b119f79057a5f13d4a9b66395b542a
+Cabal file warning in /Users/fedor/PROJECTS/Fun/icfpc-2016/.stack-work/downloaded/oET3ehL5n3Lq/clipper.cabal: Unknown fields: extra-include-dirs (line 24)
+Fields allowed in this section:
+    exposed-modules, reexported-modules, required-signatures,
+    exposed-signatures, exposed, buildable, build-tools, build-depends,
+    cpp-options, cc-options, ld-options, pkgconfig-depends, frameworks,
+    c-sources, js-sources, default-language, other-languages,
+    default-extensions, other-extensions, extensions, extra-libraries,
+    extra-ghci-libraries, extra-lib-dirs, includes, install-includes,
+    include-dirs, hs-source-dirs, other-modules, ghc-prof-options,
+    ghcjs-prof-options, ghc-shared-options, ghcjs-shared-options,
+    ghc-options, ghcjs-options, jhc-options, hugs-options,
+    nhc98-options
+No packages found in snapshot which provide a "hsc2hs" executable, which is a build-tool dependency of "clipper"
+Missing build-tools may be caused by dependencies of the build-tool being overridden by extra-deps.
+This should be fixed soon - see this issue https://github.com/commercialhaskell/stack/issues/595
+
+clipper-0.0.2: unregistering (old configure information not found)
+clipper-0.0.2: configure
+clipper-0.0.2: build
+hsqml-0.3.4.1: configure
+clipper-0.0.2: copy/register
+hsqml-0.3.4.1: build
+Progress: 2/3
+--  While building package hsqml-0.3.4.1 using:
+      /private/var/folders/5f/tlfts7tn20q_4qfzzxt16lx80000gn/T/stack33644/hsqml-0.3.4.1/.stack-work/dist/x86_64-osx/Cabal-1.22.5.0/setup/setup --builddir=.stack-work/dist/x86_64-osx/Cabal-1.22.5.0 build --ghc-options " -ddump-hi -ddump-to-file"
+    Process exited with code: ExitFailure 1
+    Logs have been written to: /Users/fedor/PROJECTS/Fun/icfpc-2016/.stack-work/logs/hsqml-0.3.4.1.log
+
+    [1 of 1] Compiling Main             ( /private/var/folders/5f/tlfts7tn20q_4qfzzxt16lx80000gn/T/stack33644/hsqml-0.3.4.1/Setup.hs, /private/var/folders/5f/tlfts7tn20q_4qfzzxt16lx80000gn/T/stack33644/hsqml-0.3.4.1/.stack-work/dist/x86_64-osx/Cabal-1.22.5.0/setup/Main.o )
+    Linking /private/var/folders/5f/tlfts7tn20q_4qfzzxt16lx80000gn/T/stack33644/hsqml-0.3.4.1/.stack-work/dist/x86_64-osx/Cabal-1.22.5.0/setup/setup ...
+    Configuring hsqml-0.3.4.1...
+    cbits/Model.h:12: Error: Undefined interface

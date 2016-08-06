@@ -25,6 +25,13 @@ Installing clipper
 5. Make sure you have git version of `stack`. If not, run `% stack upgrade --git`.
 6. Uncomment relevant `ghc-options` section in `stack.yaml`
 
+Fetching problems
+=================
+
+1. Install PHP5 CLI with php-json and php-curl modules
+2. Change dir to repo root directory (!!!IMPORTANT!!!)
+2. Run php tools/fetch_problems.php
+
 Links
 =====
 [1] - https://docs.haskellstack.org/en/stable/install_and_upgrade/
