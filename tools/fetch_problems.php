@@ -91,6 +91,7 @@ $problems = $resp['problems'];
 
 echo "Found " . count($problems) . " problems\n";
 
+$new = 0;
 foreach($problems as $problem) {
   $problemID = $problem['problem_id']; $problemHash = $problem['problem_spec_hash'];
   $problemFile = 'problems/' . $problemID . '.txt';
@@ -106,6 +107,8 @@ foreach($problems as $problem) {
   echo "Fetching problem " . $problemID . " (" . $problemHash . ")\n";
   $resp = httpGet('http://2016sv.icfpcontest.org/api/blob/' . $problemHash, false);
   file_put_contents($problemFile, $resp);
+  $new++;
 }
 
-echo "Done!\n";
+echo "Snapshot : $snapshotHash (" . date("r", $snapshotTime) . ") is done\n";
+echo "Problems: " . count($problems) . " total, " . $new . " new\n";
