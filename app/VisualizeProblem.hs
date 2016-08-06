@@ -21,7 +21,7 @@ main = do
       defPropertyConst' "problemJSON" (\_ -> readIORef state)
       ]
     ctx <- newObject clazz ()
-    doc <- getDataFileName "visual.qml"
+    doc <- getDataFileName "problem.qml"
     runEngineLoop defaultEngineConfig {
         initialDocument = fileDocument doc,
         contextObject = Just $ anyObjRef ctx}
