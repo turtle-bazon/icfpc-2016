@@ -1,1 +1,1 @@
-{"solution_size":1204,"ok":true,"resemblance":0.611076,"problem_id":70,"solution_spec_hash":"4090425c77e8626deeae38c3749b085fd65f75d0"}
+{"ok":false,"error":"Invalid solution_spec."}
