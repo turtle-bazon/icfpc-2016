@@ -261,7 +261,7 @@ performSearch sil step = do
 
 stopSearch :: Step -> IO Solution
 stopSearch (Step { stepsLeft = stepsLeft, best = best }) = do
-  putStrLn $ " ;; Done with best score = " ++ (show $ bestScore best) ++ ", " ++ (show stepsLeft) ++ " steps left, solution length = " ++ (show $ bestLength best)
+  -- putStrLn $ " ;; Done with best score = " ++ (show $ bestScore best) ++ ", " ++ (show stepsLeft) ++ " steps left, solution length = " ++ (show $ bestLength best)
   -- putStrLn $ " ;; Fold history length = " ++ (show $ length $ foldHistory bestTrans)
   -- putStrLn $ " ;; Trans history length = " ++ (show $ length $ transHistory bestTrans)
   return $ fst $ play $ bestTrans best
