@@ -27,5 +27,5 @@ parseFirstPoly = polygon . head . filter isFillPoly
       isFillPoly (PolyFill _) = True
       isFillPoly (PolyHole _) = False
 
-solverBBSimple :: Problem -> Solution
-solverBBSimple = makeBBSolution . parseFirstPoly . silhouette
+solverBBSimple :: Problem -> IO Solution
+solverBBSimple = return . makeBBSolution . parseFirstPoly . silhouette

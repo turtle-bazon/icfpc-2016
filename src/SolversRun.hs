@@ -12,7 +12,7 @@ import SolverBBSimple
 import SolverBBRect
 import SolverBBRotate
 
-data Solver = Solver { name :: String, solve :: Problem -> Solution }
+data Solver = Solver { name :: String, solve :: Problem -> IO Solution }
 
 data Rating = Rating { solverName :: String, solution :: Solution, similarity :: Double } deriving (Show)
 
@@ -42,13 +42,12 @@ loadAllProblems dir = do
 
 rateSolver :: Problem -> Solver -> IO Rating
 rateSolver problem solver = do
+  solution <- solve solver $ problem
   sim <- score (silhouette problem) solution
   return $ Rating { solverName = name solver
                   , solution = solution
                   , similarity = sim
                   }
-      where
-        solution = solve solver $ problem
 
 rateSolvers :: Problem -> IO [Rating]
 rateSolvers problem = mapM (rateSolver problem) solvers
