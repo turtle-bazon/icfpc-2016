@@ -12,6 +12,7 @@ import SolverBBSimple
 import SolverBBRect
 import SolverBBRotate
 import SolverMetropolis
+import SolverMinimalRect
 
 data Solver = Solver { name :: String, solve :: Problem -> IO Solution }
 
@@ -22,6 +23,7 @@ solvers = [ Solver { name = "simple", solve = solverBBSimple }
           , Solver { name = "rect", solve = solverBBRect }
           , Solver { name = "rotate", solve = solverBBRotate }
           , Solver { name = "metropolis", solve = solverMetropolis }
+          , Solver { name = "minirect", solve = solverMinimalRect }
           ]
 
 loadFile :: ( [String] -> a ) -> String -> IO a
