@@ -5,7 +5,6 @@ import System.IO
 import System.Directory
 import Control.DeepSeq
 import qualified Control.Monad.Parallel as P
-import Control.Concurrent.Barrier
 import Common
 import Parse
 import Figures

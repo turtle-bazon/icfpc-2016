@@ -3,6 +3,7 @@ module Figures where
 import Data.List (nubBy)
 import Data.Ratio
 import Control.Monad (foldM)
+import qualified Control.Concurrent.Lock as L
 import Algebra.Clipper
 import Common
 import Math
@@ -59,7 +60,10 @@ choosePointBy choose polys =
 polyOp :: (Polygons -> Polygons -> IO Polygons) -> [Poly] -> [Poly] -> IO [Poly]
 polyOp op psa psb = do
   let pivot = choosePointLB $ psa ++ psb
-  Polygons ps <- op (makePolygons pivot psa) (makePolygons pivot psb)
+  let cpsa = makePolygons pivot psa
+  let cpsb = makePolygons pivot psb
+  lock <- L.new
+  Polygons ps <- L.with lock $ op cpsa cpsb
   return $ map (map (translatePoint pivot)) $ map fromIntPoly ps
 
 polyIntersect :: [Poly] -> [Poly] -> IO [Poly]
@@ -88,7 +92,8 @@ polyArea p =
           pivot = choosePointLB [p]
           calcArea = calc $ makePolygons pivot [p]
           calc (Polygons [poly]) = do
-            areaE12 <- area poly
+            lock <- L.new
+            areaE12 <- L.with lock $ area poly
             return $ areaE12 / 1000000000000
           calc _ = return 0
 
