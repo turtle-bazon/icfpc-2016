@@ -3,6 +3,7 @@ module SolverRandomSearch (solverRandomSearch) where
 import System.Random
 import Common
 import Math
+import Figures
 import SolverBBSimple
 import Parse
 
@@ -26,7 +27,16 @@ centrify problem solution =
           problemCenter = centrifyPos problem
           solutionDelta = negatePoint $ centrifyPoly $ dstPoly solution
 
+startSearch :: Silhouette -> Solution -> IO Solution
+startSearch sil sol =
+    score sil sol >>= performSearch sil sol
+
+performSearch :: Silhouette -> Solution -> Double -> IO Solution
+performSearch sil sol curScore | curScore >= 1.0 = return sol
+performSearch sil sol curScore =
+    undefined
 
 
 solverRandomSearch :: Problem -> IO Solution
-solverRandomSearch = undefined
+solverRandomSearch problem =
+    startSearch (silhouette problem) (centrify problem initSolution)
