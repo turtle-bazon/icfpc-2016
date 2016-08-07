@@ -3,6 +3,7 @@ module Math where
 import Data.List
 import Data.Maybe
 import Data.Ratio
+import qualified Data.Number.FixedFunctions as FF
 import Common
 import Show
 
