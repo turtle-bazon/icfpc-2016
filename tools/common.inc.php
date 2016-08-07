@@ -5,6 +5,11 @@ define('VERSION', 'v0.0.1');
 $ch = curl_init();
 $lastQuery = 0;
 
+$stackTool = 'stack';
+if (!empty(getenv('STACK'))) {
+  $stackTool = getenv('STACK');
+}
+
 function httpGet($url, $parseJSON = true) {
   global $ch,$lastQuery;
 

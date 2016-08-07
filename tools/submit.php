@@ -68,12 +68,9 @@ function readSolutions($solutionsDir, $problemsDir) {
 }
 
 function scoreSolution($solutionInfo) {
-  $scoreTool = 'stack';
-  if (!empty(getenv('STACK'))) {
-    $scoreTool = getenv('STACK');
-  }
+  global $stackTool;
 
-  $scoreTool .= ' exec score-solution -- ';
+  $scoreTool = $stackTool . ' exec score-solution -- ';
   $score = @system($scoreTool . ' ' . $solutionInfo['problem_filename'] . ' ' . $solutionInfo['filename']);
   if (!is_numeric($score)) {
     $problemID = $solutionInfo['problem_id'];
