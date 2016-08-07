@@ -16,6 +16,8 @@ type Silhouette = [SilhouettePoly]
 
 type Edge = (Point, Point)
 
+data Orientation = Collinear | Clockwise | CounterClockwise deriving (Eq, Show)
+
 type Skeleton = [Edge]
 
 data Problem = Problem { silhouette :: Silhouette, skeleton :: Skeleton } deriving (Eq, Show)

@@ -46,6 +46,83 @@ rotatePointTo pivot ((Point x1 y1), (Point x2 y2)) =
                         , py = ((py p) * cosangle) + ((px p) * sinangle)
                          }
 
+{-- Function computes slope by two points--}
+slope :: Point -> Point -> Number
+slope (Point x1 y1) (Point x2 y2) = (y1 - y2) / (x1 - x2)
+
+{-- Function computes slope/intercept form of a line equation --}
+lineEquationByPoints :: Point -> Point -> (Number, Number)
+lineEquationByPoints p1@(Point x1 y1) p2 =
+  let m = slope p1 p2 in (m, y1 - m * x1)
+
+{-- Functions reflect point over a line given by edge.
+    Note: length of edge is not checked, so use carefuly --}
+reflectPointOverEdge :: Point -> Edge -> Point
+reflectPointOverEdge (Point x y) (p1, p2) =
+  let (a, c) = lineEquationByPoints p1 p2
+      d = (x + (y - c) * a) / (1 + a ^ 2)
+  in Point (2 * d - x) (2 * d * a - y + 2 * c)
+
+reflectEdgeOverEdge :: Edge -> Edge -> Edge
+reflectEdgeOverEdge (p1, p2) e = (reflectPointOverEdge p1 e, reflectPointOverEdge p2 e)
+
+{-- Given three colinear points p, q, r, the function checks if
+    point q lies on line segment 'pr' --}
+isOnSegment :: Point -> Edge -> Bool
+isOnSegment (Point qx qy) (Point px py, Point rx ry) =
+  let x_check = (qx <= max px rx) && (qx >= min px rx)
+      y_check = (qy <= max py ry) && (qy >= min py ry)
+  in (x_check && y_check)
+
+{-- Function finds orientation of ordered triplet (p, q, r).
+    See http://www.geeksforgeeks.org/orientation-3-ordered-points/
+    for details of below formula --}
+orientation :: Point -> Point -> Point -> Orientation
+orientation (Point px py) (Point qx qy) (Point rx ry) =
+  let val = (qy - py) * (rx - qx) - (qx - px) * (ry - qy)
+  in case val of _
+                   | val == 0 -> Collinear
+                   | val >  0 -> Clockwise
+                   | val <  0 -> CounterClockwise
+
+{-- Function returns true if edges 'p1q1' and 'p2q2' intersect.
+    Note: since collinear edges are of no interest to us, we do
+    not check such intersections --}
+doIntersect :: Edge -> Edge -> Bool
+doIntersect (p1, q1) (p2, q2) =
+  let o1 = orientation p1 q1 p2
+      o2 = orientation p1 q1 q2
+      o3 = orientation p2 q2 p1
+      o4 = orientation p2 q2 q1
+  in (o1 /= o2 && o3 /= o4)
+
+{-- Simple vector functions --}
+addVectors :: Point -> Point -> Point
+addVectors (Point x1 y1) (Point x2 y2) = Point (x1 + x2) (y1 + y2)
+
+substractVectors :: Point -> Point -> Point
+substractVectors (Point x1 y1) (Point x2 y2) = Point (x1 - x2) (y1 - y2)
+
+cross :: Point -> Point -> Number
+cross (Point x1 y1) (Point x2 y2) = x1 * y2 - y1 * x2
+
+scalarProduct :: Number -> Point -> Point
+scalarProduct m (Point x y) = Point (m * x) (m * y)
+
+{-- Function that computes intersection point of two segments. It has almost no checks,
+    so it is encouraged to use doIntersect first, otherwise result may be bogus --}
+findIntersection :: Edge -> Edge -> Maybe Point
+findIntersection (p1, p2) (q1, q2) =
+  let r = substractVectors p2 p1
+      s = substractVectors q2 q1
+      rxs = cross r s
+      qp = substractVectors q1 p1
+      t = (cross qp s) / rxs
+      u = (cross qp r) / rxs
+  in if ((rxs /= 0) && (0 <= t && t <= 1) && (0 <= u && u <= 1))
+     then Just (addVectors p1 (scalarProduct t r))
+     else Nothing
+
 translate :: Point -> Solution -> Solution
 translate delta solution =
     solution { points = map translateDst $ points solution }
