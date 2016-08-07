@@ -177,7 +177,7 @@ echo "done! " . count($solutions) . " was found\n";
 
 ksort($solutions);
 
-$skipResubmit = false;
+$skipResubmit = true;
 
 $new = 0; $upToDate = 0; $improve = 0; $degrade = 0; $resubmit = 0;
 $submitOk = 0; $submitFail = 0; $submitError = 0;
