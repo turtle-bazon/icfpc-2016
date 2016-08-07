@@ -25,14 +25,23 @@ translatePoint :: Point -> Point -> Point
 translatePoint delta point =
     Point { px = (px delta) + (px point), py = (py delta) + (py point) }
 
+calcTrig :: Number -> (Number, Number)
+calcTrig angle = (FF.sin epsilonN angle, FF.cos epsilonN angle)
+
 rotatePoint :: Point -> Number -> Point -> Point
 rotatePoint pivot angle =
+    rotatePoint' pivot fsin fcos
+        where
+          (fsin, fcos) = calcTrig angle
+
+rotatePoint' :: Point -> Number -> Number -> Point -> Point
+rotatePoint' pivot fsin fcos =
     fromOrigin . rotate . toOrigin
         where
           toOrigin = translatePoint (negatePoint pivot)
           fromOrigin = translatePoint pivot
-          rotate p = Point { px = ((px p) * (FF.cos epsilonN angle)) - ((py p) * (FF.sin epsilonN angle))
-                           , py = ((py p) * (FF.cos epsilonN angle)) + ((px p) * (FF.sin epsilonN angle))
+          rotate p = Point { px = ((px p) * fcos) - ((py p) * fsin)
+                           , py = ((py p) * fcos) + ((px p) * fsin)
                            }
 
 rotatePointTo :: Point -> Edge -> Point -> Point
@@ -139,6 +148,16 @@ breakEdge edge1@(p1, p2) edge2 = case findIntersection edge1 edge2 of
                              Nothing -> Right edge1
                              Just x ->  Left ((p1, x), (x, p2))
 
+{-- Function filters out points on one side of a line defined by two points. Side is
+    chosen with regards to points number - smaller number to fold is preferred --}
+filterPointsByLine :: (Point, Point) -> [Point] -> [Point]
+filterPointsByLine (Point x1 y1, Point x2 y2) points =
+  let check (Point x y)         = ((x2 - x1) * (y - y1) - (y2 - y1) * (x - x1)) > 0
+      (leftPoints, rightPoints) = partition check points
+      leftSize                  = length leftPoints
+      rightSize                 = length rightPoints
+  in if leftSize > rightSize then leftPoints else rightPoints
+
 translate :: Point -> Solution -> Solution
 translate delta solution =
     solution { points = map translateDst $ points solution }
@@ -149,7 +168,8 @@ rotate :: Point -> Number -> Solution -> Solution
 rotate pivot angle solution =
     solution { points = map rotateDst $ points solution }
         where
-          rotateDst p = p { dstvertex = rotatePoint pivot angle $ dstvertex p }
+          (fsin, fcos) = calcTrig angle
+          rotateDst p = p { dstvertex = rotatePoint' pivot fsin fcos $ dstvertex p }
 
 rotateTo :: Point -> Edge -> Solution -> Solution
 rotateTo pivot edge solution =

@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 module Common where
 
 import Data.List
@@ -6,11 +8,11 @@ import Data.Ratio
 
 type Number = Ratio Integer
 
-data Point = Point { px :: Number, py :: Number } deriving (Eq, Ord, Show)
+data Point = Point { px :: !Number, py :: !Number } deriving (Eq, Ord, Show)
 
 type Poly = [Point]
 
-data SilhouettePoly = PolyFill Poly | PolyHole Poly deriving (Eq, Show)
+data SilhouettePoly = PolyFill !Poly | PolyHole !Poly deriving (Eq, Show)
 
 type Silhouette = [SilhouettePoly]
 
@@ -20,7 +22,7 @@ data Orientation = Collinear | Clockwise | CounterClockwise deriving (Eq, Show)
 
 type Skeleton = [Edge]
 
-data Problem = Problem { silhouette :: Silhouette, skeleton :: Skeleton } deriving (Eq, Show)
+data Problem = Problem { silhouette :: !Silhouette, skeleton :: !Skeleton } deriving (Eq, Show)
 
 type PointIndex = Int
 

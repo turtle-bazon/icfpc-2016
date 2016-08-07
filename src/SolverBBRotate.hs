@@ -32,7 +32,8 @@ makeRectangleSolution problem =
         alpha = case x1 - x2 of
                   0 -> 0
                   other -> FF.atan epsilonN $ abs $ (y1-y2)/other
-        rotated = map (rotatePoint (Point 0 0) (-alpha)) $ map (\(x,y) -> Point x y) points
+        (fsin, fcos) = calcTrig (-alpha)
+        rotated = map (rotatePoint' (Point 0 0) fsin fcos) $ map (\(x,y) -> Point x y) points
 
         minX = minimum $ map px rotated
         minY = minimum $ map py rotated
@@ -41,7 +42,7 @@ makeRectangleSolution problem =
         width = maxX - minX
         height = maxY - minY
 
-        polygons' = map (\p -> map (rotatePoint (Point 0 0) (-alpha)) p) polygons
+        polygons' = map (\p -> map (rotatePoint' (Point 0 0) fsin fcos) p) polygons
     in
         rotate (Point 0 0) (alpha) $ makeRectangleSolution' width height minX minY (head polygons')
     where
