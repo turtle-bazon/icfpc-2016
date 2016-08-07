@@ -128,3 +128,21 @@ score sil sol = do
               pIntersectAreas <- traverse polyArea pIntersect
               pUnionAreas <- traverse polyArea pUnion
               return $ (sum pIntersectAreas) / (sum pUnionAreas)
+
+isCongruentFacet :: [IndexedPoint] -> Bool
+isCongruentFacet facet =
+  let
+    srcDist = multiDist (map srcvertex facet) []
+    dstDist = multiDist (map dstvertex facet) []
+  in
+    foldl (\x (d1,d2) -> x && (d1 == d2)) True $ zip srcDist dstDist
+  where
+    multiDist [] res = res
+    multiDist (p:[]) res = res
+    multiDist (p1:p2:ps) res = multiDist (p2:ps) $ (dist p1 p2 : res)
+    dist :: Point -> Point -> Number
+    dist p1 p2 = (px p1 - px p2)*(px p1 - px p2) + (py p1 - py p2)*(py p1 - py p2)
+
+
+isCongruentSolution :: Solution -> Bool
+isCongruentSolution  = foldl (&&) True . map isCongruentFacet . facetsPolys'

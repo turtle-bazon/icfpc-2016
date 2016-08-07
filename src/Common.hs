@@ -58,3 +58,10 @@ facetsPolys sol =
         where
           restorePoly indices = map restorePoint indices
           restorePoint idx = dstvertex $ fromJust $ find ((== idx) . index) $ points sol
+
+facetsPolys' :: Solution -> [[IndexedPoint]]
+facetsPolys' sol =
+    map restorePoly $ facets sol
+        where
+          restorePoly indices = map restorePoint indices
+          restorePoint idx = fromJust $ find ((== idx) . index) $ points sol
