@@ -80,23 +80,47 @@ foldPartUp part solution =
           (Point { py = start }, Point { py = end }) = bbox $ dstPoly solution
           foldPos = partSegment part start end
 
+data HistoryLine = History { hindex :: Int, action :: Solution -> Solution }
+
 data Trans = Trans { baseSolution :: Solution
-                   , foldHistory :: [Solution -> Solution]
-                   , transHistory :: [Solution -> Solution]
+                   , foldHistory :: [HistoryLine]
+                   , transHistory :: [HistoryLine]
                    }
 
 makeTrans :: Solution -> Trans
 makeTrans sol =
     Trans { baseSolution = sol, foldHistory = [], transHistory = [] }
 
+nextIndex :: Trans -> Int
+nextIndex (Trans { foldHistory = [], transHistory = [] }) = 0
+nextIndex (Trans { foldHistory = History { hindex = i } : _, transHistory = [] }) = i + 1
+nextIndex (Trans { foldHistory = [], transHistory = History { hindex = i } : _ }) = i + 1
+nextIndex (Trans { foldHistory = History { hindex = ia } : _, transHistory = History { hindex = ib } : _ }) = (max ia ib) + 1
+
+dropRecent :: Trans -> Trans
+dropRecent tr@(Trans { foldHistory = [], transHistory = [] }) = tr
+dropRecent tr@(Trans { foldHistory = _ : rest, transHistory = [] }) = tr { foldHistory = rest }
+dropRecent tr@(Trans { foldHistory = [], transHistory = _ : rest }) = tr { transHistory = rest }
+dropRecent tr@(Trans { foldHistory = History { hindex = ia } : _, transHistory = History { hindex = ib } : rest })
+    | ia < ib = tr { transHistory = rest }
+dropRecent tr@(Trans { foldHistory = _ : rest }) = tr { foldHistory = rest }
+
 play :: Trans -> (Solution, Int)
 play trans = (sol, length $ showSolution $ sol)
     where
-      sol = playSpecific (baseSolution trans) $ (transHistory trans) ++ (foldHistory trans)
+      sol = playSpecific (baseSolution trans) $ map action $ (transHistory trans) ++ (foldHistory trans)
 
 playSpecific :: Solution -> [Solution -> Solution] -> Solution
 playSpecific = foldr run
     where run f solution = f solution
+
+rememberFold :: (Solution -> Solution) -> Trans -> Trans
+rememberFold action tr =
+    tr { foldHistory = History { hindex = nextIndex tr, action = action } : (foldHistory tr) }
+
+rememberTrans :: (Solution -> Solution) -> Trans -> Trans
+rememberTrans action tr =
+    tr { transHistory = History { hindex = nextIndex tr, action = action } : (transHistory tr) }
 
 randomAction :: Double -> Trans -> IO Trans
 randomAction variation tr =
@@ -106,27 +130,27 @@ randomAction variation tr =
         choose 0 = do
           point <- randomTranslationPoint variation
           -- putStrLn $ "   ;;; action: translate on " ++ (show point)
-          return $ tr { transHistory = (translate point) : (transHistory tr) }
+          return $ rememberTrans (translate point) tr
         choose 1 = do
           angle <- randomRotationAngle variation
           -- putStrLn $ "   ;;; action: rotate by " ++ (show angle)
-          return $ tr { transHistory = (rotateAroundCenter angle) : (transHistory tr) }
+          return $ rememberTrans (rotateAroundCenter angle) tr
         choose 2 = do
           part <- randomFoldPart variation
           -- putStrLn $ "   ;;; action: fold left by " ++ (show part)
-          return $ tr { foldHistory = (foldPartLeft part) : (foldHistory tr) }
+          return $ rememberFold (foldPartLeft part) tr
         choose 3 = do
           part <- randomFoldPart variation
           -- putStrLn $ "   ;;; action: fold right by " ++ (show part)
-          return $ tr { foldHistory = (foldPartRight part) : (foldHistory tr) }
+          return $ rememberFold (foldPartRight part) tr
         choose 4 = do
           part <- randomFoldPart variation
           -- putStrLn $ "   ;;; action: fold down by " ++ (show part)
-          return $ tr { foldHistory = (foldPartDown part) : (foldHistory tr) }
+          return $ rememberFold (foldPartDown part) tr
         choose 5 = do
           part <- randomFoldPart variation
           -- putStrLn $ "   ;;; action: fold up by " ++ (show part)
-          return $ tr { foldHistory = (foldPartUp part) : (foldHistory tr) }
+          return $ rememberFold (foldPartUp part) tr
         choose _ = error "shoud not get here"
         rotateAroundCenter angle solution =
             rotate (centrifySolution solution) angle solution
