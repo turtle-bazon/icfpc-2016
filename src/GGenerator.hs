@@ -76,6 +76,28 @@ foldS n w1 w2 =
                    facets = facetsA ++ facetsB ++ facetsC,
                    dst = acdb' }
 
+isSquare :: Integer -> Bool
+isSquare v = 
+	--True
+	(fromInteger v) == (round $ sqrt $ fromInteger v)^2
+
+rationalSqrt :: Integer -> Integer
+rationalSqrt v = 
+	round $ sqrt $ fromInteger v
+	--v
+
+rotations :: Integer -> [(Number,Number)]
+rotations n =
+	let
+		sins = [i | i <- [0..n]]
+		coss2 = map (\s -> n^2 - s^2) sins
+		rational = filter (\(_,c2) -> isSquare c2) $ zip sins coss2
+		rational' = map (\(s,c2) -> (s%n, (rationalSqrt c2)%n) ) rational
+	in
+		rational'
+		
+
+
 generateG :: Integer -> Number -> Float -> Solution
 generateG n w angle =
 	rotate (Point (1%2) (1%2)) angle $ foldG n w
