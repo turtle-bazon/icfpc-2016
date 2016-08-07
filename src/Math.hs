@@ -1,5 +1,6 @@
 module Math where
 
+import Debug.Trace
 import Data.List
 import Data.Maybe
 import Data.Ratio
@@ -164,6 +165,52 @@ facetIdxToPoints :: [IndexedPoint] -> FacetPoly -> [IndexedPoint]
 facetIdxToPoints points facet =
   map (\ind -> fromJust (find ((== ind) . index) points)) facet
 
+isUpper1Q :: Number -> Number -> Point -> Bool
+isUpper1Q x y (Point px py) =
+  (py - y) > (-px + x)
+
+isUpper2Q :: Number -> Number -> Point -> Bool
+isUpper2Q x y point =
+  isPointLeft ( Point { px = x, py = y}
+              , Point { px = x + 1, py = y - 1}) point
+
+isLower2Q :: Number -> Number -> Point -> Bool
+isLower2Q x y point =
+  isPointRight ( Point { px = x, py = y}
+               , Point { px = x + 1, py = y - 1}) point
+
+isUpper3Q :: Number -> Number -> Point -> Bool
+isUpper3Q x y (Point px py) =
+  (py - y) < (-px + x)
+
+isUpper4Q :: Number -> Number -> Point -> Bool
+isUpper4Q x y (Point px py) =
+  (py - y) < (px - x)
+
+isFacetForTransformingTopLeftFold :: Number -> Number -> [IndexedPoint] -> FacetPoly -> Bool
+isFacetForTransformingTopLeftFold x y points facet =
+  let facetPoints = facetIdxToPoints points facet
+      facetXYs = map dstvertex facetPoints
+  in or $ map (isUpper1Q x y) facetXYs
+
+isFacetForTransformingTopRightFold :: Number -> Number -> [IndexedPoint] -> FacetPoly -> Bool
+isFacetForTransformingTopRightFold x y points facet =
+  let facetPoints = facetIdxToPoints points facet
+      facetXYs = map dstvertex facetPoints
+  in or $ map (isUpper2Q x y) facetXYs
+
+isFacetForTransformingBottomLeftFold :: Number -> Number -> [IndexedPoint] -> FacetPoly -> Bool
+isFacetForTransformingBottomLeftFold x y points facet =
+  let facetPoints = facetIdxToPoints points facet
+      facetXYs = map dstvertex facetPoints
+  in or $ map (isUpper3Q x y) facetXYs
+
+isFacetForTransformingBottomRightFold :: Number -> Number -> [IndexedPoint] -> FacetPoly -> Bool
+isFacetForTransformingBottomRightFold x y points facet =
+  let facetPoints = facetIdxToPoints points facet
+      facetXYs = map dstvertex facetPoints
+  in or $ map (isUpper4Q x y) facetXYs
+
 isFacetForTransformingDown :: Number -> [IndexedPoint] -> FacetPoly -> Bool
 isFacetForTransformingDown y points facet =
   let facetPoints = facetIdxToPoints points facet
@@ -188,6 +235,24 @@ isFacetForTransformingLeft x points facet =
       facetXs = (map (\ip -> px $ dstvertex ip) facetPoints)
   in x < (maximum facetXs)
 
+isEdgeCrossing1Q :: Number -> Number -> (IndexedPoint, IndexedPoint) -> Bool
+isEdgeCrossing1Q x y (p1, p2) =
+  let facetXYs = map dstvertex [p1, p2] 
+      hasPointsUpper = or $ map (isUpper1Q x y) facetXYs
+      hasPointsLower = or $ map (isUpper1Q x y) facetXYs
+  in hasPointsUpper && hasPointsLower
+
+isEdgeCrossing2Q :: Number -> Number -> (IndexedPoint, IndexedPoint) -> Bool
+isEdgeCrossing2Q x y (p1, p2) =
+  let facetXYs = map dstvertex [p1, p2] 
+      hasPointsUpper = or $ map (isUpper2Q x y) facetXYs
+      hasPointsLower = or $ map (isLower2Q x y) facetXYs
+  in hasPointsUpper && hasPointsLower
+
+isEdgeCrossing3Q = isEdgeCrossing1Q
+
+isEdgeCrossing4Q = isEdgeCrossing2Q
+
 isEdgeCrossingHorizontal :: Number -> (IndexedPoint, IndexedPoint) -> Bool
 isEdgeCrossingHorizontal y (p1, p2) =
   let maxy = max (py (dstvertex p1)) (py (dstvertex p2))
@@ -200,6 +265,26 @@ isEdgeCrossingVertical x (p1, p2) =
       minx = min (px (dstvertex p1)) (px (dstvertex p2))
   in (minx < x) && (x < maxx)
 
+isFacetCrossing1Q :: Number -> Number -> [IndexedPoint] -> FacetPoly -> Bool
+isFacetCrossing1Q x y points facet =
+  let facetPoints = facetIdxToPoints points facet
+      facetXYs = map dstvertex facetPoints
+      hasPointsUpper = or $ map (isUpper1Q x y) facetXYs
+      hasPointsLower = or $ map (isUpper1Q x y) facetXYs
+  in hasPointsUpper && hasPointsLower
+
+isFacetCrossing2Q :: Number -> Number -> [IndexedPoint] -> FacetPoly -> Bool
+isFacetCrossing2Q x y points facet =
+  let facetPoints = facetIdxToPoints points facet
+      facetXYs = map dstvertex facetPoints
+      hasPointsUpper = or $ map (isUpper2Q x y) facetXYs
+      hasPointsLower = or $ map (isLower2Q x y) facetXYs
+  in hasPointsUpper && hasPointsLower
+
+isFacetCrossing3Q = isFacetCrossing1Q
+
+isFacetCrossing4Q = isFacetCrossing2Q
+
 isFacetCrossingHorizontal :: Number -> [IndexedPoint] -> FacetPoly -> Bool
 isFacetCrossingHorizontal y points facet =
   let [p1, p2, p3, p4] = (facetIdxToPoints points facet)
@@ -209,6 +294,52 @@ isFacetCrossingVertical :: Number -> [IndexedPoint] -> FacetPoly -> Bool
 isFacetCrossingVertical x points facet =
   let [p1, p2, p3, p4] = (facetIdxToPoints points facet)
   in or $ map (isEdgeCrossingVertical x) [(p1, p2), (p2, p3), (p3, p4), (p4, p1)]
+
+tryTransformPointTopLeftFold :: Number -> Number -> IndexedPoint -> IndexedPoint
+tryTransformPointTopLeftFold x y (IndexedPoint idx srcv dstv) =
+  if isUpper1Q x y dstv
+  then IndexedPoint { index = idx
+                    , srcvertex = srcv
+                    , dstvertex = Point { px = 2 * x - (px dstv)
+                                        , py = 2 * y - (py dstv)
+                                        }}
+  else IndexedPoint { index = idx
+                    , srcvertex = srcv
+                    , dstvertex = dstv }
+
+tryTransformPointTopRightFold :: Number -> Number -> IndexedPoint -> IndexedPoint
+tryTransformPointTopRightFold x y ip@(IndexedPoint idx srcv dstv) =
+  if isUpper2Q x y dstv
+  then IndexedPoint { index = idx
+                    , srcvertex = srcv
+                    , dstvertex = reflectPointByEdge foldingEdge dstv}
+  else ip
+  where foldingEdge = ( Point { px = x, py = y}
+                      , Point { px = x + 1, py = y - 1})
+
+tryTransformPointBottomRightFold :: Number -> Number -> IndexedPoint -> IndexedPoint
+tryTransformPointBottomRightFold x y (IndexedPoint idx srcv dstv) =
+  if isUpper3Q x y dstv
+  then IndexedPoint { index = idx
+                    , srcvertex = srcv
+                    , dstvertex = Point { px = 2 * x - (px dstv)
+                                        , py = 2 * y - (py dstv)
+                                        }}
+  else IndexedPoint { index = idx
+                    , srcvertex = srcv
+                    , dstvertex = dstv }
+
+tryTransformPointBottomLeftFold :: Number -> Number -> IndexedPoint -> IndexedPoint
+tryTransformPointBottomLeftFold x y (IndexedPoint idx srcv dstv) =
+  if isUpper3Q x y dstv
+  then IndexedPoint { index = idx
+                    , srcvertex = srcv
+                    , dstvertex = Point { px = 2 * x - (px dstv)
+                                        , py = 2 * y - (py dstv)
+                                        }}
+  else IndexedPoint { index = idx
+                    , srcvertex = srcv
+                    , dstvertex = dstv }
 
 tryTransformPointDown :: Number -> IndexedPoint -> IndexedPoint
 tryTransformPointDown y (IndexedPoint idx srcv dstv) =
@@ -258,6 +389,112 @@ splitByChecker ((p1, p2) : restPairs) checker =
         (pc, pd) = (head (tail (tail restPairs)))
     in ([pa, pb], [pc, pd])
   else splitByChecker (restPairs ++ [(p1, p2)]) checker
+
+toEdges :: [IndexedPoint] -> [(IndexedPoint, IndexedPoint)]
+toEdges points@(firstPoint:restPoints) =
+  zip points (restPoints ++ [firstPoint])
+
+isPointLeft :: Edge -> Point-> Bool
+isPointLeft ((Point x1 y1), (Point x2 y2)) (Point px py) =
+  dy * (px - x1) < dx * (py - y1)
+  where
+    dx = x2 - x1
+    dy = y2 - y1              
+
+isPointRight :: Edge -> Point-> Bool
+isPointRight ((Point x1 y1), (Point x2 y2)) (Point px py) =
+  dy * (px - x1) > dx * (py - y1)
+  where
+    dx = x2 - x1
+    dy = y2 - y1              
+
+crossingPoint :: Edge -> Edge -> Maybe Point
+crossingPoint ((Point x1_1 y1_1), (Point x2_1 y2_1)) ((Point x1_2 y1_2), (Point x2_2 y2_2)) =
+  if (dcmbx == 0) || (dcmby == 0)
+  then Nothing
+  else Just Point { px = prex / dcmbx
+                  , py = prey / dcmby
+                  }
+  where
+    dx1 = x2_1 - x1_1
+    dy1 = y2_1 - y1_1
+    dx2 = x2_2 - x1_2
+    dy2 = y2_2 - y1_2
+    dcmbx = dx2 * dy1 - dx1 * dy2
+    dcmby = dx1 * dy2 - dx2 * dy1
+    prex = dx2 * dy1 * x1_1 - dx1 * dy2 * x1_2 - dx1 * dx2 * (y1_1 - y1_2)
+    prey = dx1 * dy2 * y1_1 - dx2 * dy1 * y1_2 - dy1 * dy2 * (x1_1 - x1_2)
+
+sourceByNeighbors :: IndexedPoint -> IndexedPoint -> IndexedPoint -> IndexedPoint
+sourceByNeighbors p pa pb =
+  IndexedPoint { index = index p
+               , srcvertex = Point { px = (px (srcvertex pa)) + sgx * pcoeff
+                                   , py = (py (srcvertex pa)) + sgy * pcoeff
+                                   }
+               , dstvertex = dstvertex p
+               }
+  where
+    ddx = (px (dstvertex pb)) - (px (dstvertex pa))
+    ddy = (py (dstvertex pb)) - (py (dstvertex pa))
+    sdx = (px (srcvertex pb)) - (px (srcvertex pa))
+    sdy = (py (srcvertex pb)) - (py (srcvertex pa))
+    pdx = (px (dstvertex p)) - (px (dstvertex pa))
+    pdy = (py (dstvertex p)) - (py (dstvertex pa))
+    pcoeff = max (abs (if ddx == 0 then 0 else (pdx / ddx))) (abs (if ddy == 0 then 0 else (pdy / ddy)))
+    sgx = signum sdx
+    sgy = signum sdy
+
+reduceEdgesToPoints :: [(IndexedPoint, IndexedPoint)] -> [IndexedPoint]
+reduceEdgesToPoints [] = []
+reduceEdgesToPoints ((p1, p2):restEdges) =
+  p1:p2:(reduceEdgesToPoints restEdges)
+
+createTopRightFoldFacets :: Number -> Number -> [IndexedPoint] -> [IndexedPoint] -> [FacetPoly] -> [FacetPoly] -> ([IndexedPoint], [FacetPoly])
+createTopRightFoldFacets _ _ _ newPoints newFacets [] =
+  (newPoints, newFacets)
+createTopRightFoldFacets x y points newPoints newFacets (currentFacet:restFacets) =
+  if isFacetForTransformingTopRightFold x y points currentFacet
+  then
+    let freshPoints = map (\ip -> if (elem (index ip) currentFacet)
+                                  then tryTransformPointTopRightFold x y ip
+                                  else ip) newPoints
+    in if isFacetCrossing2Q x y points currentFacet
+       then
+         let maxId = maximum $ map index newPoints
+             id1 = maxId + 1
+             id2 = maxId + 2
+             foldingEdge = ( Point {px = x, py = y},
+                             Point {px = x + 1, py = y - 1} )
+             facetPoints = (facetIdxToPoints points currentFacet)
+             facetEdges = toEdges facetPoints
+             (beforeEdges1, afterEdges1) = break (isEdgeCrossing2Q x y) facetEdges
+             e1 = head afterEdges1
+             (beforeEdges2, afterEdges2) = break (isEdgeCrossing2Q x y) (tail afterEdges1)
+             e2 = head afterEdges2
+             se1 = [e1] ++ beforeEdges2 ++ [e2]
+             se2 = (tail afterEdges2) ++ beforeEdges1
+             e1_p1 = dstvertex $ fst e1
+             e1_p2 = dstvertex $ snd e1
+             e2_p1 = dstvertex $ fst e2
+             e2_p2 = dstvertex $ snd e2
+             crossp1 = fromJust (crossingPoint foldingEdge (e1_p1, e1_p2))
+             crossp2 = fromJust (crossingPoint foldingEdge (e2_p1, e2_p2))
+             newp1 = (sourceByNeighbors IndexedPoint { index = id1
+                                                     , srcvertex = crossp1
+                                                     , dstvertex = crossp1 } (fst e1) (snd e1))
+             newp2 = (sourceByNeighbors IndexedPoint { index = id2
+                                                     , srcvertex = crossp2
+                                                     , dstvertex = crossp2} (fst e2) (snd e2))
+             innerPoints' = nub $ reduceEdgesToPoints se1
+             innerPoints = (init (tail innerPoints'))
+             outerPoints = nub $ reduceEdgesToPoints se2
+             newFacet1 = id2 : id1 : (map index innerPoints)
+             newFacet2 = id1 : id2 : (map index outerPoints)
+         in
+           createTopRightFoldFacets x y points (newp1 : newp2 : freshPoints) (newFacet1 : newFacet2 : newFacets) restFacets
+       else
+         createTopRightFoldFacets x y points freshPoints (currentFacet : newFacets) restFacets
+  else createTopRightFoldFacets x y points newPoints (currentFacet : newFacets) restFacets
 
 createHorizontalDownFacets :: Number -> [IndexedPoint] -> [IndexedPoint] -> [FacetPoly] -> [FacetPoly] -> ([IndexedPoint], [FacetPoly])
 createHorizontalDownFacets _ points newPoints newFacets [] =
@@ -440,6 +677,14 @@ normalizeSolution (Solution points facets) =
                               in (x, xs)) $ filter (\v -> (length v) > 1) $ map (map index) groupedPoints
   in normalizeSolutionDev duplicates (Solution { points = sortOn index points
                                                , facets = facets})
+
+foldTopRightCorner :: Number -> Number -> Solution -> Solution
+foldTopRightCorner x y (Solution points facets) =
+  let newObjects = createTopRightFoldFacets x y points points [] facets
+      newPoints = fst newObjects
+      newFacets = snd newObjects
+  in normalizeSolution Solution { points = newPoints
+                                , facets = newFacets}
 
 foldDown :: Number -> Solution -> Solution
 foldDown y (Solution points facets) =
