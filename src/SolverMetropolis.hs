@@ -131,9 +131,11 @@ randomAction variation tr =
         rotateAroundCenter angle solution =
             rotate (centrifySolution solution) angle solution
 
+data Best = Best { bestTrans :: Trans, bestScore :: Double, bestLength :: Int }
+
 data Step = Step { trans :: Trans
                  , stepsLeft :: Int
-                 , best :: (Trans, Double)
+                 , best :: Best
                  , curScore :: Double
                  , curLength :: Int
                  }
@@ -143,22 +145,27 @@ startSearch sil sol maxSteps = do
   startScore <- score sil sol
   performSearch sil $ Step { trans = makeTrans sol
                            , stepsLeft = maxSteps
-                           , best = (makeTrans sol, startScore)
+                           , best = Best { bestTrans = makeTrans sol
+                                         , bestScore = startScore
+                                         , bestLength = solLen
+                                         }
                            , curScore = startScore
-                           , curLength = length $ showSolution sol
+                           , curLength = solLen
                            }
+      where
+        solLen = length $ showSolution sol
 
 performSearch :: Silhouette -> Step -> IO Solution
 performSearch _ step@(Step { stepsLeft = 0 }) = stopSearch step
 performSearch _ step@(Step { curScore = curScore }) | curScore >= 1 = stopSearch step
-performSearch sil step@(Step { stepsLeft = stepsLeft, best = (bestTrans, bestScore), curScore = 0 }) =
-    performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans, curScore = bestScore }
-performSearch sil step@(Step { trans = Trans { baseSolution = sol }, curLength = curLength }) | curLength > 5000 = do
-  resetScore <- score sil sol
-  performSearch sil step { trans = makeTrans sol, curScore = resetScore, curLength = length $ showSolution sol }
+performSearch sil step@(Step { stepsLeft = stepsLeft, best = best, curScore = 0 }) = do
+  performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans best, curScore = bestScore best, curLength = bestLength best }
+performSearch sil step@(Step { stepsLeft = stepsLeft, best = best, curLength = curLength }) | curLength > 5000 = do
+  performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans best, curScore = bestScore best, curLength = bestLength best }
 performSearch sil step = do
-  -- putStrLn $ " ;; score = " ++ (show $ curScore step) ++ ", " ++ (show $ stepsLeft step) ++ " left, sol length = " ++ (show $ curLength step)
-  tryTrans <- randomAction 1.0 $ trans step
+  -- putStrLn $ " ;; score = " ++ (show $ curScore step) ++ " (best = " ++ (show $ bestScore $ best step) ++ "), " ++ (show $ stepsLeft step) ++ " left, sol length = " ++ (show $ curLength step)
+  let variance = 1.0 - (curScore step)
+  tryTrans <- randomAction variance $ trans step
   let (trySol, tryLen) = play tryTrans
   tryScore <- score sil trySol
   decideNext ((sqError tryScore) / (sqError $ curScore step)) tryTrans tryScore tryLen
@@ -172,21 +179,24 @@ performSearch sil step = do
               rollNext alpha roll tryTrans tryScore tryLen
         rollNext alpha roll | roll <= alpha = acceptNext
         rollNext _ _ = acceptCurr
-        acceptNext tryTrans tryScore tryLen =
-            performSearch sil $ step { trans = tryTrans, curScore = tryScore, stepsLeft = (stepsLeft step) - 1, best = updateBest, curLength = tryLen }
+        acceptNext tryTrans tryScore tryLen = do
+            performSearch sil $ step { trans = tryTrans
+                                     , curScore = tryScore
+                                     , stepsLeft = (stepsLeft step) - 1
+                                     , best = updateBest Best { bestTrans = tryTrans, bestScore = tryScore, bestLength = tryLen }
+                                     , curLength = tryLen
+                                     }
         acceptCurr _ _ _ =
             performSearch sil $ step { stepsLeft = (stepsLeft step) - 1 }
-        updateBest =
-            case best step of
-              (_, bestScore) | (curScore step) > bestScore -> (trans step, curScore step)
-              other -> other
+        updateBest newBest@Best { bestScore = tryScore } | tryScore > (bestScore $ best step) = newBest
+        updateBest _ = best step
 
 stopSearch :: Step -> IO Solution
-stopSearch (Step { stepsLeft = stepsLeft, best = (bestTrans, bestScore), curLength = len }) = do
-  -- putStrLn $ " ;; Done with best score = " ++ (show bestScore) ++ ", " ++ (show stepsLeft) ++ " steps left, solution length = " ++ (show len)
+stopSearch (Step { stepsLeft = stepsLeft, best = best }) = do
+  putStrLn $ " ;; Done with best score = " ++ (show $ bestScore best) ++ ", " ++ (show stepsLeft) ++ " steps left, solution length = " ++ (show $ bestLength best)
   -- putStrLn $ " ;; Fold history length = " ++ (show $ length $ foldHistory bestTrans)
   -- putStrLn $ " ;; Trans history length = " ++ (show $ length $ transHistory bestTrans)
-  return $ fst $ play bestTrans
+  return $ fst $ play $ bestTrans best
 
 solverMetropolis :: Problem -> IO Solution
 solverMetropolis = solverMetropolisSteps 128
