@@ -65,6 +65,8 @@ rateSolvers problem =
           inspectSolvers (solver : restSolvers) curRating = do
             newRating <- rateSolver problem solver
             inspectNext restSolvers curRating newRating
+          inspectNext restSolvers rating (Rating { solution = sol })
+              | solutionLength sol > 5000 = inspectSolvers restSolvers rating
           inspectNext restSolvers Nothing rating = inspectSolvers restSolvers $ Just rating
           inspectNext restSolvers curRating@(Just (Rating { similarity = curSim })) newRating@(Rating { similarity = newSim })
               | newSim > curSim = inspectSolvers restSolvers $ Just newRating
