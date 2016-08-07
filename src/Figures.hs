@@ -129,6 +129,28 @@ score sil sol = do
               pUnionAreas <- traverse polyArea pUnion
               return $ (sum pIntersectAreas) / (sum pUnionAreas)
 
+scoreRect :: Silhouette -> Point -> Point -> IO Double
+scoreRect sil bottomLeft topRight = do
+  rectSil <- return $ PolyFill [
+    Point (px bottomLeft) (py bottomLeft),
+    Point (px bottomLeft) (py topRight),
+    Point (px topRight) (py topRight),
+    Point (px topRight) (py bottomLeft)
+    ]
+
+  siPolys <- silhouetteToPolygons sil
+  rectPolys <- silhouetteToPolygons [rectSil]
+  pIntersect <- polyIntersect siPolys rectPolys
+  verdict pIntersect siPolys rectPolys
+      where
+        verdict [] _ _ = return 0
+        verdict pIntersect rectPolys siPolys =
+            do
+              pUnion <- polyUnion rectPolys siPolys
+              pIntersectAreas <- traverse polyArea pIntersect
+              pUnionAreas <- traverse polyArea pUnion
+              return $ (sum pIntersectAreas) / (sum pUnionAreas)
+
 isCongruentFacet :: [IndexedPoint] -> Bool
 isCongruentFacet facet =
   let
