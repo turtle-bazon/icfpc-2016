@@ -17,7 +17,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Common Parse Math Show Visualize Figures SolversRun SolverBBSimple SolverBBRect SolverBBRotate SolverMetropolis SolverMinimalRect
+  exposed-modules:     Common Parse Math Show Visualize Figures SolversRun SolverBBSimple SolverBBRect SolverBBRotate SolverMetropolis SolverMinimalRect SolverMultiRect
   build-depends:       base >= 4.7 && < 5
                      , clipper
                      , deepseq >= 1.4.1.1
