@@ -13,15 +13,16 @@ import Paths_icfpc2016
 
 main :: IO ()
 main = do
-    problemData <- getContents
-    problem <- return $ parseProblem $ lines problemData
-    state <- newIORef $ T.pack $ encode $ makeProblemModel problem
-    -- putStr $ encode problem
+    solutionData <- getContents
+    solution <- return $ parseSolution $ lines solutionData
+    model <- return $ encode $ makeSolutionModel solution
+    state <- newIORef $ T.pack $ model
+    -- putStrLn model
     clazz <- newClass [
-      defPropertyConst' "problemJSON" (\_ -> readIORef state)
+      defPropertyConst' "modelJSON" (\_ -> readIORef state)
       ]
     ctx <- newObject clazz ()
-    doc <- getDataFileName "problem.qml"
+    doc <- getDataFileName "solution.qml"
     runEngineLoop defaultEngineConfig {
         initialDocument = fileDocument doc,
         contextObject = Just $ anyObjRef ctx}
