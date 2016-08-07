@@ -13,16 +13,16 @@ foldPlaces target_len =
     folds' target_len 1
 
 folds' target_len current_len =
-    if 
-        target_len < (current_len/2) 
-    then 
-        (current_len/2) : (folds' target_len (current_len/2)) 
+    if
+        target_len < (current_len/2)
+    then
+        (current_len/2) : (folds' target_len (current_len/2))
     else
         [current_len - target_len]
 
 foldRect :: Number -> Number -> Solution
 foldRect width height =
-    let 
+    let
         folded_h = if width < 1
             then
                 foldl (\solution -> \place -> foldLeft place solution) initSolution $ foldPlaces width
@@ -41,7 +41,8 @@ foldMininalRectangleSolution :: Problem -> Number -> Solution
 foldMininalRectangleSolution problem alpha =
     let
         polygons = map polygon $ filter isFillPoly $ silhouette problem
-        pnts = map (rotatePoint (Point 0 0) alpha) $ foldl (\acc -> \ps -> ps ++ acc) [] polygons
+        (fsin, fcos) = calcTrig alpha
+        pnts = map (rotatePoint' (Point 0 0) fsin fcos) $ foldl (\acc -> \ps -> ps ++ acc) [] polygons
         minX = minimum $ map px pnts
         minY = minimum $ map py pnts
         maxX = maximum $ map px pnts
