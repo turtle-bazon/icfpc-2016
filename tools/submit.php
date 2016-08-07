@@ -178,6 +178,14 @@ echo "done! " . count($solutions) . " was found\n";
 ksort($solutions);
 
 $skipResubmit = true;
+if (!empty(getenv('RESUBMIT'))) {
+  $skipResubmit = (bool)getenv('RESUBMIT');
+}
+
+$dryRun = false;
+if (!empty(getenv('DRYRUN'))) {
+  $dryRun = (bool)getenv('DRYRUN');
+}
 
 $new = 0; $upToDate = 0; $improve = 0; $degrade = 0; $resubmit = 0;
 $submitOk = 0; $submitFail = 0; $submitError = 0;
@@ -228,26 +236,29 @@ foreach($solutions as $problemID => $solution) {
     }
   }
 
-  list($info, $raw) = submitSolution($solution);
+  if (!$dryRun) {
+    list($info, $raw) = submitSolution($solution);
 
-  if (!is_array($info) || !array_key_exists('ok', $info)) {
-    echo "$problemID: Submit: bad response from server\n";
-    $submitError++;
-    continue;
-  }
-  if($info['ok']) {
-    echo "$problemID: Submission accepted. Response: {$raw}\n";
-    $submitOk++;
-  }
-  else {
-    echo "$problemID: Submission rejected. Response: {$raw}\n";
-    $submitFail++;
-  }
+    if (!is_array($info) || !array_key_exists('ok', $info)) {
+      echo "$problemID: Submit: bad response from server\n";
+      $submitError++;
+      continue;
+    }
+    if($info['ok']) {
+      echo "$problemID: Submission accepted. Response: {$raw}\n";
+      $submitOk++;
+    }
+    else {
+      echo "$problemID: Submission rejected. Response: {$raw}\n";
+      $submitFail++;
 
-  file_put_contents(SUBMISSION_DB . '/' . $problemID . '.json', $raw);
-  $solutionBody = file_get_contents($solution['filename']);
-  file_put_contents(SUBMISSION_DB . '/' . $problemID . '.solution.txt', $solutionBody);
-  $db[$problemID] = $info;
+    }
+
+    file_put_contents(SUBMISSION_DB . '/' . $problemID . '.json', $raw);
+    $solutionBody = file_get_contents($solution['filename']);
+    file_put_contents(SUBMISSION_DB . '/' . $problemID . '.solution.txt', $solutionBody);
+    $db[$problemID] = $info;
+  }
 }
 
 echo "Done processing\n";
