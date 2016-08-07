@@ -123,6 +123,17 @@ findIntersection (p1, p2) (q1, q2) =
      then Just (addVectors p1 (scalarProduct t r))
      else Nothing
 
+{-- Following functions break edge in two in case it intersects with other edge --}
+checkAndBreakEdge :: Edge -> Edge -> Either (Edge, Edge) Edge
+checkAndBreakEdge edge1 edge2 = if (doIntersect edge1 edge2)
+                                then breakEdge edge1 edge2
+                                else Right edge1
+
+breakEdge :: Edge -> Edge -> Either (Edge, Edge) Edge
+breakEdge edge1@(p1, p2) edge2 = case findIntersection edge1 edge2 of
+                             Nothing -> Right edge1
+                             Just x ->  Left ((p1, x), (x, p2))
+
 translate :: Point -> Solution -> Solution
 translate delta solution =
     solution { points = map translateDst $ points solution }
