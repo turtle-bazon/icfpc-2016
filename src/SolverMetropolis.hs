@@ -188,7 +188,8 @@ performSearch sil step = do
                                      }
         acceptCurr _ _ _ =
             performSearch sil $ step { stepsLeft = (stepsLeft step) - 1 }
-        updateBest newBest@Best { bestScore = tryScore } | tryScore > (bestScore $ best step) = newBest
+        updateBest newBest@Best { bestScore = tryScore, bestLength = tryLength }
+            | tryScore > (bestScore $ best step) && tryLength <= 5000 = newBest
         updateBest _ = best step
 
 stopSearch :: Step -> IO Solution
