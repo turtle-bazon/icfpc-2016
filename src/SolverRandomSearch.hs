@@ -16,6 +16,9 @@ centrifyPoly = center . bbox
       center (Point { px = lbx, py = lby }, Point { px = rtx, py = rty }) =
           Point { px = lbx + (rtx - lbx) / 2, py = lby + (rty - lby) / 2 }
 
+centrifySolution :: Solution -> Point
+centrifySolution = centrifyPoly . dstPoly
+
 dstPoly :: Solution -> Poly
 dstPoly = map dstvertex . points
 
@@ -25,7 +28,29 @@ centrify problem solution =
         where
           relativeCenter = translatePoint solutionDelta problemCenter
           problemCenter = centrifyPos problem
-          solutionDelta = negatePoint $ centrifyPoly $ dstPoly solution
+          solutionDelta = negatePoint $ centrifySolution solution
+
+randomTranslationPoint :: Float -> IO Point
+randomTranslationPoint variation = do
+  deltaX <- randomRIO (-variation, variation)
+  deltaY <- randomRIO (-variation, variation)
+  return $ Point { px = approx deltaX, py = approx deltaY }
+
+randomRotationAngle :: Float -> IO Float
+randomRotationAngle variation = do
+  delta <- randomRIO (-variation, variation)
+  return $ pi * 2 * delta
+
+randomAction :: Float -> IO (Solution -> Solution)
+randomAction variation =
+  randomRIO (0, 1) >>= choose
+      where
+        choose :: Int -> IO (Solution -> Solution)
+        choose 0 = randomTranslationPoint variation >>= return . translate
+        choose 1 = randomRotationAngle variation >>= return . rotateAroundCenter
+        choose _ = error "shoud not get here"
+        rotateAroundCenter angle solution =
+            rotate (centrifySolution solution) angle solution
 
 startSearch :: Silhouette -> Solution -> IO Solution
 startSearch sil sol =
