@@ -22,7 +22,7 @@ solvers :: [Solver]
 solvers = [ Solver { name = "simple", solve = solverBBSimple }
           , Solver { name = "rect", solve = solverBBRect }
           , Solver { name = "rotate", solve = solverBBRotate }
-          , Solver { name = "metropolis", solve = solverMetropolis }
+          -- , Solver { name = "metropolis", solve = solverMetropolis }
           , Solver { name = "minirect", solve = solverMinimalRect }
           ]
 
