@@ -52,16 +52,38 @@ randomAction variation =
         rotateAroundCenter angle solution =
             rotate (centrifySolution solution) angle solution
 
-startSearch :: Silhouette -> Solution -> IO Solution
-startSearch sil sol =
-    score sil sol >>= performSearch sil sol
+startSearch :: Silhouette -> Solution -> Int -> IO Solution
+startSearch sil sol maxSteps =
+    score sil sol >>= performSearch maxSteps sil sol
 
-performSearch :: Silhouette -> Solution -> Double -> IO Solution
-performSearch sil sol curScore | curScore >= 1.0 = return sol
-performSearch sil sol curScore =
-    undefined
+performSearch :: Int -> Silhouette -> Solution -> Double -> IO Solution
+performSearch 0 _ sol curScore = stopSearch 0 sol curScore
+performSearch stepsLeft sil sol curScore | curScore >= 1.0 = stopSearch stepsLeft sol curScore
+performSearch stepsLeft sil sol curScore = do
+  putStrLn $ " ;; Performing search with current score = " ++ (show curScore) ++ ", " ++ (show stepsLeft) ++ " steps left"
+  tryAction <- randomAction 1.0
+  let trySolution = tryAction sol
+  tryScore <- score sil trySolution
+  decideNext (tryScore / curScore) trySolution tryScore
+      where
+        decideNext alpha trySolution tryScore | alpha >= 1.0 = acceptNext trySolution tryScore
+        decideNext alpha trySolution tryScore =
+            do
+              roll <- randomRIO (0.0, 1.0)
+              rollNext alpha roll trySolution tryScore
+        rollNext alpha roll | roll <= alpha = acceptNext
+        rollNext _ _ = acceptCurr
+        acceptNext = performSearch (stepsLeft - 1) sil
+        acceptCurr _ _ = performSearch (stepsLeft - 1) sil sol curScore
 
+stopSearch :: Int -> Solution -> Double -> IO Solution
+stopSearch stepsLeft solution score = do
+  putStrLn $ " ;; Searching stops with current score = " ++ (show score) ++ ", " ++ (show stepsLeft) ++ " steps left"
+  return solution
 
 solverRandomSearch :: Problem -> IO Solution
-solverRandomSearch problem =
-    startSearch (silhouette problem) (centrify problem initSolution)
+solverRandomSearch = solverRandomSearchSteps 100
+
+solverRandomSearchSteps :: Int -> Problem -> IO Solution
+solverRandomSearchSteps maxSteps problem =
+    startSearch (silhouette problem) (centrify problem initSolution) maxSteps
