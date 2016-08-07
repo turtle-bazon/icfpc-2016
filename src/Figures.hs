@@ -82,11 +82,15 @@ polyDifference :: [Poly] -> [Poly] -> IO [Poly]
 polyDifference = polyOp difference
 
 polyArea :: Poly -> IO Double
-polyArea p = do
-  let pivot = choosePointLB [p]
-  let (Polygons [poly]) = makePolygons pivot [p]
-  areaE12 <- area poly
-  return $ areaE12 / 1000000000000
+polyArea p =
+    calcArea
+        where
+          pivot = choosePointLB [p]
+          calcArea = calc $ makePolygons pivot [p]
+          calc (Polygons [poly]) = do
+            areaE12 <- area poly
+            return $ areaE12 / 1000000000000
+          calc _ = return 0
 
 silhouetteArea :: Silhouette -> IO Double
 silhouetteArea sil = do
