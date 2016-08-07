@@ -41,51 +41,80 @@ randomRotationAngle variation = do
   delta <- randomRIO (-variation, variation)
   return $ pi * 2 * delta
 
-randomAction :: Float -> IO (Solution -> Solution)
-randomAction variation =
+data Trans = Trans { baseSolution :: Solution
+                   , foldHistory :: [Solution -> Solution]
+                   , transHistory :: [Solution -> Solution]
+                   }
+
+makeTrans :: Solution -> Trans
+makeTrans sol =
+    Trans { baseSolution = sol, foldHistory = [], transHistory = [] }
+
+play :: Trans -> Solution
+play trans =
+    foldr run (baseSolution trans) $ (foldHistory trans) ++ (transHistory trans)
+        where
+          run f solution = f solution
+
+randomAction :: Float -> Trans -> IO Trans
+randomAction variation tr =
   randomRIO (0, 1) >>= choose
       where
-        choose :: Int -> IO (Solution -> Solution)
-        choose 0 = randomTranslationPoint variation >>= return . translate
-        choose 1 = randomRotationAngle variation >>= return . rotateAroundCenter
+        choose :: Int -> IO Trans
+        choose 0 = do
+          point <- randomTranslationPoint variation
+          return $ tr { transHistory = (translate point) : (transHistory tr) }
+        choose 1 = do
+          angle <- randomRotationAngle variation
+          return $ tr { transHistory = (rotateAroundCenter angle) : (transHistory tr) }
         choose _ = error "shoud not get here"
         rotateAroundCenter angle solution =
             rotate (centrifySolution solution) angle solution
 
+data Step = Step { trans :: Trans
+                 , stepsLeft :: Int
+                 , best :: (Trans, Double)
+                 , curScore :: Double
+                 }
+
 startSearch :: Silhouette -> Solution -> Int -> IO Solution
 startSearch sil sol maxSteps = do
   startScore <- score sil sol
-  performSearch maxSteps (sol, startScore) sil sol startScore
+  performSearch sil $ Step { trans = makeTrans sol, stepsLeft = maxSteps, best = (makeTrans sol, startScore), curScore = startScore }
 
-performSearch :: Int -> (Solution, Double) -> Silhouette -> Solution -> Double -> IO Solution
-performSearch 0 best _ sol curScore = stopSearch 0 best
-performSearch stepsLeft best sil sol curScore | curScore >= 1.0 = stopSearch stepsLeft best
-performSearch stepsLeft best@(bestSol, bestScore) sil sol 0 = performSearch (stepsLeft - 1) best sil bestSol bestScore
-performSearch stepsLeft best sil sol curScore = do
+performSearch :: Silhouette -> Step -> IO Solution
+performSearch _ step@(Step { stepsLeft = 0 }) = stopSearch step
+performSearch _ step@(Step { curScore = curScore }) | curScore >= 1 = stopSearch step
+performSearch sil step@(Step { stepsLeft = stepsLeft, best = (bestTrans, bestScore), curScore = 0 }) =
+    performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans, curScore = bestScore }
+performSearch sil step = do
   -- putStrLn $ " ;; Performing search with current score = " ++ (show curScore) ++ ", " ++ (show stepsLeft) ++ " steps left"
-  tryAction <- randomAction 1.0
-  let trySolution = tryAction sol
-  tryScore <- score sil trySolution
-  decideNext ((sqError tryScore) / (sqError curScore)) trySolution tryScore
+  tryTrans <- randomAction 1.0 $ trans step
+  tryScore <- score sil $ play tryTrans
+  decideNext ((sqError tryScore) / (sqError $ curScore step)) tryTrans tryScore
       where
         sqError x = 1 / ((1 - x) * (1 - x))
-        decideNext alpha trySolution tryScore | alpha >= 1.0 = acceptNext trySolution tryScore
-        decideNext alpha trySolution tryScore =
+        decideNext alpha tryTrans tryScore | alpha >= 1.0 = acceptNext tryTrans tryScore
+        decideNext alpha tryTrans tryScore =
             do
               roll <- randomRIO (0.0, 1.0)
               -- putStrLn $ "  ;;; deciding: roll = " ++ (show roll) ++ ", alpha = " ++ (show alpha) ++ ", tryScore = " ++ (show tryScore)
-              rollNext alpha roll trySolution tryScore
+              rollNext alpha roll tryTrans tryScore
         rollNext alpha roll | roll <= alpha = acceptNext
         rollNext _ _ = acceptCurr
-        acceptNext = performSearch (stepsLeft - 1) (updateBest best) sil
-        acceptCurr _ _ = performSearch (stepsLeft - 1) (updateBest best) sil sol curScore
-        updateBest (_, bestScore) | curScore > bestScore = (sol, curScore)
-        updateBest best = best
+        acceptNext tryTrans tryScore =
+            performSearch sil $ step { trans = tryTrans, curScore = tryScore, stepsLeft = (stepsLeft step) - 1, best = updateBest }
+        acceptCurr _ _ =
+            performSearch sil $ step { stepsLeft = (stepsLeft step) - 1 }
+        updateBest =
+            case best step of
+              (_, bestScore) | (curScore step) > bestScore -> (trans step, curScore step)
+              other -> other
 
-stopSearch :: Int -> (Solution, Double) -> IO Solution
-stopSearch stepsLeft (solution, score) = do
-  putStrLn $ " ;; Searching stops with best score = " ++ (show score) ++ ", " ++ (show stepsLeft) ++ " steps left"
-  return solution
+stopSearch :: Step -> IO Solution
+stopSearch (Step { stepsLeft = stepsLeft, best = (bestTrans, bestScore) }) = do
+  putStrLn $ " ;; Searching stops with best score = " ++ (show bestScore) ++ ", " ++ (show stepsLeft) ++ " steps left"
+  return $ play bestTrans
 
 solverMetropolis :: Problem -> IO Solution
 solverMetropolis = solverMetropolisSteps 128
