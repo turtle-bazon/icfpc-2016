@@ -119,7 +119,7 @@ function submitSolution($solution) {
 
     /* Delay */
     $now = microtime(true);
-    $delay = $lastQuery - $now + 1.1;
+    $delay = $lastQuery - $now + 1.5;
     if ($delay > 0) {
       usleep((int)$delay*1000000);
     }
