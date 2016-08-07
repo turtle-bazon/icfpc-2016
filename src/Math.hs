@@ -422,7 +422,11 @@ normalizeSolutionDev ((baseInd, []):restDuplicates) solution =
 normalizeSolutionDev ((baseInd, (curDup:restDups)):restDuplicates) (Solution points facets) =
   let pointsWithoutDup = filter (\ip -> curDup /= (index ip)) points
       solutionWithoutDup = Solution { points = pointsWithoutDup
-                                    , facets = map (\curFacet -> map (\ind -> if ind == curDup then baseInd else ind) curFacet) facets}
+                                    , facets = map (\curFacet ->
+                                                     map (\ind ->
+                                                           if ind == curDup
+                                                           then baseInd
+                                                           else ind) curFacet) facets}
   in normalizeSolutionDev (((baseInd, restDups)):restDuplicates) solutionWithoutDup
 
 normalizeSolution :: Solution -> Solution
