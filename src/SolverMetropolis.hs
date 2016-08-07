@@ -43,8 +43,8 @@ randomRotationAngle variation = do
 
 randomFoldPart :: Float -> IO Number
 randomFoldPart variation = do
-  part <- randomRIO (-variation, variation)
-  return $ approx part
+  part <- randomRIO (0, variation)
+  return $ approx $ part / 2
 
 partSegment :: Number -> Number -> Number -> Number
 partSegment part start end =
@@ -101,21 +101,27 @@ randomAction variation tr =
         choose :: Int -> IO Trans
         choose 0 = do
           point <- randomTranslationPoint variation
+          -- putStrLn $ "   ;;; action: translate on " ++ (show point)
           return $ tr { transHistory = (translate point) : (transHistory tr) }
         choose 1 = do
           angle <- randomRotationAngle variation
+          -- putStrLn $ "   ;;; action: rotate by " ++ (show angle)
           return $ tr { transHistory = (rotateAroundCenter angle) : (transHistory tr) }
         choose 2 = do
           part <- randomFoldPart variation
+          -- putStrLn $ "   ;;; action: fold left by " ++ (show part)
           return $ tr { foldHistory = (foldPartLeft part) : (foldHistory tr) }
         choose 3 = do
           part <- randomFoldPart variation
+          -- putStrLn $ "   ;;; action: fold right by " ++ (show part)
           return $ tr { foldHistory = (foldPartRight part) : (foldHistory tr) }
         choose 4 = do
           part <- randomFoldPart variation
+          -- putStrLn $ "   ;;; action: fold down by " ++ (show part)
           return $ tr { foldHistory = (foldPartDown part) : (foldHistory tr) }
         choose 5 = do
           part <- randomFoldPart variation
+          -- putStrLn $ "   ;;; action: fold up by " ++ (show part)
           return $ tr { foldHistory = (foldPartUp part) : (foldHistory tr) }
         choose _ = error "shoud not get here"
         rotateAroundCenter angle solution =
@@ -138,7 +144,7 @@ performSearch _ step@(Step { curScore = curScore }) | curScore >= 1 = stopSearch
 performSearch sil step@(Step { stepsLeft = stepsLeft, best = (bestTrans, bestScore), curScore = 0 }) =
     performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans, curScore = bestScore }
 performSearch sil step = do
-  -- putStrLn $ " ;; Performing search with current score = " ++ (show curScore) ++ ", " ++ (show stepsLeft) ++ " steps left"
+  -- putStrLn $ " ;; Performing search with current score = " ++ (show $ curScore step) ++ ", " ++ (show $ stepsLeft step) ++ " steps left"
   tryTrans <- randomAction 1.0 $ trans step
   tryScore <- score sil $ play tryTrans
   decideNext ((sqError tryScore) / (sqError $ curScore step)) tryTrans tryScore
