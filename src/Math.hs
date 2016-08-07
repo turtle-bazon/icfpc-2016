@@ -24,14 +24,23 @@ translatePoint :: Point -> Point -> Point
 translatePoint delta point =
     Point { px = (px delta) + (px point), py = (py delta) + (py point) }
 
+calcTrig :: Number -> (Number, Number)
+calcTrig angle = (FF.sin epsilonN angle, FF.cos epsilonN angle)
+
 rotatePoint :: Point -> Number -> Point -> Point
 rotatePoint pivot angle =
+    rotatePoint' pivot fsin fcos
+        where
+          (fsin, fcos) = calcTrig angle
+
+rotatePoint' :: Point -> Number -> Number -> Point -> Point
+rotatePoint' pivot fsin fcos =
     fromOrigin . rotate . toOrigin
         where
           toOrigin = translatePoint (negatePoint pivot)
           fromOrigin = translatePoint pivot
-          rotate p = Point { px = ((px p) * (FF.cos epsilonN angle)) - ((py p) * (FF.sin epsilonN angle))
-                           , py = ((py p) * (FF.cos epsilonN angle)) + ((px p) * (FF.sin epsilonN angle))
+          rotate p = Point { px = ((px p) * fcos) - ((py p) * fsin)
+                           , py = ((py p) * fcos) + ((px p) * fsin)
                            }
 
 rotatePointTo :: Point -> Edge -> Point -> Point
@@ -148,7 +157,8 @@ rotate :: Point -> Number -> Solution -> Solution
 rotate pivot angle solution =
     solution { points = map rotateDst $ points solution }
         where
-          rotateDst p = p { dstvertex = rotatePoint pivot angle $ dstvertex p }
+          (fsin, fcos) = calcTrig angle
+          rotateDst p = p { dstvertex = rotatePoint' pivot fsin fcos $ dstvertex p }
 
 rotateTo :: Point -> Edge -> Solution -> Solution
 rotateTo pivot edge solution =
