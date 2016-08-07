@@ -429,7 +429,7 @@ normalizeSolution :: Solution -> Solution
 normalizeSolution (Solution points facets) =
   let groupedPoints = groupBy (\pa pb -> (srcvertex pa) == (srcvertex pb)) $ sortOn srcvertex points
       duplicates = map (\l -> let (x:xs) = (sort l)
-                              in (x, xs)) $ filter (\v -> (length v) > 1) $ map (\plist -> (map (\ip -> (index ip)) plist)) groupedPoints
+                              in (x, xs)) $ filter (\v -> (length v) > 1) $ map (map index) groupedPoints
   in normalizeSolutionDev duplicates (Solution { points = sortOn index points
                                                , facets = facets})
 
