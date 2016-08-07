@@ -7,10 +7,13 @@ import qualified Data.Number.FixedFunctions as FF
 import Common
 import Show
 
-epsilon :: Float
-epsilon = 1.0 - 0.999999
+epsilon :: Double
+epsilon = 1.0 - 0.999999999
 
-approx :: Float -> Number
+epsilonN :: Number
+epsilonN = 1 % 1000000000
+
+approx :: Double -> Number
 approx = flip approxRational $ epsilon
 
 negatePoint :: Point -> Point
@@ -21,14 +24,14 @@ translatePoint :: Point -> Point -> Point
 translatePoint delta point =
     Point { px = (px delta) + (px point), py = (py delta) + (py point) }
 
-rotatePoint :: Point -> Float -> Point -> Point
+rotatePoint :: Point -> Number -> Point -> Point
 rotatePoint pivot angle =
     fromOrigin . rotate . toOrigin
         where
           toOrigin = translatePoint (negatePoint pivot)
           fromOrigin = translatePoint pivot
-          rotate p = Point { px = ((px p) * (approx $ cos angle)) - ((py p) * (approx $ sin angle))
-                           , py = ((py p) * (approx $ cos angle)) + ((px p) * (approx $ sin angle))
+          rotate p = Point { px = ((px p) * (FF.cos epsilonN angle)) - ((py p) * (FF.sin epsilonN angle))
+                           , py = ((py p) * (FF.cos epsilonN angle)) + ((px p) * (FF.sin epsilonN angle))
                            }
 
 rotatePointTo :: Point -> Edge -> Point -> Point
@@ -141,7 +144,7 @@ translate delta solution =
         where
           translateDst p = p { dstvertex = translatePoint delta $ dstvertex p }
 
-rotate :: Point -> Float -> Solution -> Solution
+rotate :: Point -> Number -> Solution -> Solution
 rotate pivot angle solution =
     solution { points = map rotateDst $ points solution }
         where
@@ -486,7 +489,7 @@ reflectPointByEdge ((Point x1 y1), (Point x2 y2)) =
                          , py = k * ((px p) * 2 * m + (py p) * (m * m - 1))
                          }
   in fromOrigin . reflect . toOrigin
-  
+
 foldByEdge :: Edge -> Solution -> Solution
 foldByEdge edge solution =
     undefined
