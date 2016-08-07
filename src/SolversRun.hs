@@ -4,7 +4,6 @@ import Data.List
 import System.IO
 import System.Directory
 import Control.DeepSeq
-import qualified Control.Monad.Parallel as P
 import Common
 import Parse
 import Figures
@@ -71,7 +70,7 @@ runProblem outputDir (problemFile, problem) = do
 run :: String -> String -> IO ()
 run problemsDir outputDir = do
   problems <- loadAllProblems problemsDir
-  P.mapM_ (runProblem outputDir) problems
+  mapM_ (runProblem outputDir) problems
 
 runSingle :: String -> String -> IO ()
 runSingle solverName problemFile = do
