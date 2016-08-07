@@ -186,8 +186,9 @@ facetIdxToPoints points facet =
   map (\ind -> fromJust (find ((== ind) . index) points)) facet
 
 isUpper1Q :: Number -> Number -> Point -> Bool
-isUpper1Q x y (Point px py) =
-  (py - y) > (-px + x)
+isUpper1Q x y point =
+  isPointLeft ( Point { px = x, py = y}
+              , Point { px = x + 1, py = y + 1}) point
 
 isUpper2Q :: Number -> Number -> Point -> Bool
 isUpper2Q x y point =
@@ -448,8 +449,8 @@ crossingPoint ((Point x1_1 y1_1), (Point x2_1 y2_1)) ((Point x1_2 y1_2), (Point 
 sourceByNeighbors :: IndexedPoint -> IndexedPoint -> IndexedPoint -> IndexedPoint
 sourceByNeighbors p pa pb =
   IndexedPoint { index = index p
-               , srcvertex = Point { px = (px (srcvertex pa)) + sgx * pcoeff
-                                   , py = (py (srcvertex pa)) + sgy * pcoeff
+               , srcvertex = Point { px = (px (srcvertex pa)) + sdx * pcoeff
+                                   , py = (py (srcvertex pa)) + sdy * pcoeff
                                    }
                , dstvertex = dstvertex p
                }
@@ -461,13 +462,35 @@ sourceByNeighbors p pa pb =
     pdx = (px (dstvertex p)) - (px (dstvertex pa))
     pdy = (py (dstvertex p)) - (py (dstvertex pa))
     pcoeff = max (abs (if ddx == 0 then 0 else (pdx / ddx))) (abs (if ddy == 0 then 0 else (pdy / ddy)))
-    sgx = signum sdx
-    sgy = signum sdy
 
 reduceEdgesToPoints :: [(IndexedPoint, IndexedPoint)] -> [IndexedPoint]
 reduceEdgesToPoints [] = []
 reduceEdgesToPoints ((p1, p2):restEdges) =
   p1:p2:(reduceEdgesToPoints restEdges)
+
+separateEdgesBy :: ((IndexedPoint, IndexedPoint) -> Bool) -> [(IndexedPoint, IndexedPoint)] -> [[(IndexedPoint, IndexedPoint)]] -> Bool -> Bool -> Bool -> [[(IndexedPoint, IndexedPoint)]]
+separateEdgesBy _ [] result _ _ _ = result
+separateEdgesBy testfn (currentEdge:restEdges) result isCross isCrossSeen isFirstRun =
+  if crossing
+  then
+    if isFirstRun
+    then separateEdgesBy testfn (restEdges ++ [currentEdge]) [edgesBeforeCross, edgesCross, edgesAfterCross] False isCrossSeen True
+    else
+      if isCrossSeen
+      then separateEdgesBy testfn restEdges [edgesBeforeCross, edgesCross ++ [currentEdge], edgesAfterCross] False isCrossSeen False
+      else separateEdgesBy testfn restEdges [edgesBeforeCross, edgesCross ++ [currentEdge], edgesAfterCross] True True False
+  else
+    if isCross
+    then separateEdgesBy testfn restEdges [edgesBeforeCross, edgesCross ++ [currentEdge], edgesAfterCross] isCross isCrossSeen False
+    else
+      if isCrossSeen
+      then separateEdgesBy testfn restEdges [edgesBeforeCross, edgesCross, edgesAfterCross ++ [currentEdge]] isCross isCrossSeen False
+      else separateEdgesBy testfn restEdges [edgesBeforeCross ++ [currentEdge], edgesCross, edgesAfterCross] isCross isCrossSeen False
+  where
+    crossing = (testfn currentEdge)
+    edgesBeforeCross = head result
+    edgesCross = head (tail result)
+    edgesAfterCross = head (tail (tail result))
 
 createTopRightFoldFacets :: Number -> Number -> [IndexedPoint] -> [IndexedPoint] -> [FacetPoly] -> [FacetPoly] -> ([IndexedPoint], [FacetPoly])
 createTopRightFoldFacets _ _ _ newPoints newFacets [] =
@@ -487,12 +510,11 @@ createTopRightFoldFacets x y points newPoints newFacets (currentFacet:restFacets
                              Point {px = x + 1, py = y - 1} )
              facetPoints = (facetIdxToPoints points currentFacet)
              facetEdges = toEdges facetPoints
-             (beforeEdges1, afterEdges1) = break (isEdgeCrossing2Q x y) facetEdges
-             e1 = head afterEdges1
-             (beforeEdges2, afterEdges2) = break (isEdgeCrossing2Q x y) (tail afterEdges1)
-             e2 = head afterEdges2
-             se1 = [e1] ++ beforeEdges2 ++ [e2]
-             se2 = (tail afterEdges2) ++ beforeEdges1
+             [edgesBefore, edgesCross, edgesAfter] = separateEdgesBy (isEdgeCrossing2Q x y) facetEdges [[],[],[]] False False True
+             se1 = edgesCross
+             se2 = edgesAfter ++ edgesBefore
+             e1 = head edgesCross
+             e2 = last edgesCross
              e1_p1 = dstvertex $ fst e1
              e1_p2 = dstvertex $ snd e1
              e2_p1 = dstvertex $ fst e2
