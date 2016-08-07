@@ -32,11 +32,7 @@ function readDB($dbPath) {
   return $db;
 }
 
-echo "Reading submissions database...\n";
 $db = readDB(SUBMISSION_DB);
-
-echo "done!\n";
-echo "DB contains " . count($db) .  " records\n";
 
 foreach ($db as $problemID => $row) {
   if (!$row['ok'] && ($row['error'] == 'Invalid solution spec: Solution size limit exceeded.')) {
