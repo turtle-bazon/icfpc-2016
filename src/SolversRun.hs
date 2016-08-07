@@ -12,6 +12,7 @@ import SolverBBSimple
 import SolverBBRect
 import SolverBBRotate
 import SolverMetropolis
+import SolverMinimalRect
 
 data Solver = Solver { name :: String, solve :: Problem -> IO Solution }
 
@@ -22,6 +23,7 @@ solvers = [ Solver { name = "simple", solve = solverBBSimple }
           , Solver { name = "rect", solve = solverBBRect }
           , Solver { name = "rotate", solve = solverBBRotate }
           , Solver { name = "metropolis", solve = solverMetropolis }
+          , Solver { name = "minirect", solve = solverMinimalRect }
           ]
 
 loadFile :: ( [String] -> a ) -> String -> IO a
@@ -51,16 +53,23 @@ rateSolver problem solver = do
                   , similarity = sim
                   }
 
-rateSolvers :: Problem -> IO [Rating]
-rateSolvers problem = mapM (rateSolver problem) solvers
-
-bestSolver :: [Rating] -> Rating
-bestSolver = head . reverse . sortOn similarity
+rateSolvers :: Problem -> IO Rating
+rateSolvers problem =
+    inspectSolvers solvers Nothing
+        where
+          inspectSolvers _ (Just rating@(Rating { similarity = sim })) | sim >= 1.0 = return rating
+          inspectSolvers [] (Just rating) = return rating
+          inspectSolvers (solver : restSolvers) curRating = do
+            newRating <- rateSolver problem solver
+            inspectNext restSolvers curRating newRating
+          inspectNext restSolvers Nothing rating = inspectSolvers restSolvers $ Just rating
+          inspectNext restSolvers curRating@(Just (Rating { similarity = curSim })) newRating@(Rating { similarity = newSim })
+              | newSim > curSim = inspectSolvers restSolvers $ Just newRating
+          inspectNext restSolvers rating _ = inspectSolvers restSolvers rating
 
 runProblem :: String -> (String, Problem) -> IO ()
 runProblem outputDir (problemFile, problem) = do
-  ratings <- rateSolvers problem
-  let best = bestSolver ratings
+  best <- rateSolvers problem
   let outFile = outputDir ++ "/" ++ problemFile
   fd <- openFile outFile WriteMode
   problemContents <- hPutStr fd $ showSolution $ solution best
