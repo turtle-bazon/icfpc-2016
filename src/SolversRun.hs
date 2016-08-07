@@ -17,9 +17,9 @@ data Solver = Solver { name :: String, solve :: Problem -> IO Solution }
 data Rating = Rating { solverName :: String, solution :: Solution, similarity :: Double } deriving (Show)
 
 solvers :: [Solver]
-solvers = [ Solver { name = "simple bbox", solve = solverBBSimple }
-          , Solver { name = "rect bbox", solve = solverBBRect }
-          , Solver { name = "rotate bbox", solve = solverBBRotate }
+solvers = [ Solver { name = "simple", solve = solverBBSimple }
+          , Solver { name = "rect", solve = solverBBRect }
+          , Solver { name = "rotate", solve = solverBBRotate }
           ]
 
 loadFile :: ( [String] -> a ) -> String -> IO a
