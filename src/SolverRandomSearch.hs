@@ -53,32 +53,38 @@ randomAction variation =
             rotate (centrifySolution solution) angle solution
 
 startSearch :: Silhouette -> Solution -> Int -> IO Solution
-startSearch sil sol maxSteps =
-    score sil sol >>= performSearch maxSteps sil sol
+startSearch sil sol maxSteps = do
+  startScore <- score sil sol
+  performSearch maxSteps (sol, startScore) sil sol startScore
 
-performSearch :: Int -> Silhouette -> Solution -> Double -> IO Solution
-performSearch 0 _ sol curScore = stopSearch 0 sol curScore
-performSearch stepsLeft sil sol curScore | curScore >= 1.0 = stopSearch stepsLeft sol curScore
-performSearch stepsLeft sil sol curScore = do
-  putStrLn $ " ;; Performing search with current score = " ++ (show curScore) ++ ", " ++ (show stepsLeft) ++ " steps left"
+performSearch :: Int -> (Solution, Double) -> Silhouette -> Solution -> Double -> IO Solution
+performSearch 0 best _ sol curScore = stopSearch 0 best
+performSearch stepsLeft best sil sol curScore | curScore >= 1.0 = stopSearch stepsLeft best
+performSearch stepsLeft best@(bestSol, bestScore) sil sol 0 = performSearch (stepsLeft - 1) best sil bestSol bestScore
+performSearch stepsLeft best sil sol curScore = do
+  -- putStrLn $ " ;; Performing search with current score = " ++ (show curScore) ++ ", " ++ (show stepsLeft) ++ " steps left"
   tryAction <- randomAction 1.0
   let trySolution = tryAction sol
   tryScore <- score sil trySolution
-  decideNext (tryScore / curScore) trySolution tryScore
+  decideNext ((sqError tryScore) / (sqError curScore)) trySolution tryScore
       where
+        sqError x = 1 / ((1 - x) * (1 - x))
         decideNext alpha trySolution tryScore | alpha >= 1.0 = acceptNext trySolution tryScore
         decideNext alpha trySolution tryScore =
             do
               roll <- randomRIO (0.0, 1.0)
+              -- putStrLn $ "  ;;; deciding: roll = " ++ (show roll) ++ ", alpha = " ++ (show alpha) ++ ", tryScore = " ++ (show tryScore)
               rollNext alpha roll trySolution tryScore
         rollNext alpha roll | roll <= alpha = acceptNext
         rollNext _ _ = acceptCurr
-        acceptNext = performSearch (stepsLeft - 1) sil
-        acceptCurr _ _ = performSearch (stepsLeft - 1) sil sol curScore
+        acceptNext = performSearch (stepsLeft - 1) (updateBest best) sil
+        acceptCurr _ _ = performSearch (stepsLeft - 1) (updateBest best) sil sol curScore
+        updateBest (_, bestScore) | curScore > bestScore = (sol, curScore)
+        updateBest best = best
 
-stopSearch :: Int -> Solution -> Double -> IO Solution
-stopSearch stepsLeft solution score = do
-  putStrLn $ " ;; Searching stops with current score = " ++ (show score) ++ ", " ++ (show stepsLeft) ++ " steps left"
+stopSearch :: Int -> (Solution, Double) -> IO Solution
+stopSearch stepsLeft (solution, score) = do
+  putStrLn $ " ;; Searching stops with best score = " ++ (show score) ++ ", " ++ (show stepsLeft) ++ " steps left"
   return solution
 
 solverRandomSearch :: Problem -> IO Solution
