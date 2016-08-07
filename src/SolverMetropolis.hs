@@ -92,7 +92,7 @@ makeTrans sol =
 play :: Trans -> (Solution, Int)
 play trans = (sol, length $ showSolution $ sol)
     where
-      sol = playSpecific (baseSolution trans) $ (foldHistory trans) ++ (transHistory trans)
+      sol = playSpecific (baseSolution trans) $ (transHistory trans) ++ (foldHistory trans)
 
 playSpecific :: Solution -> [Solution -> Solution] -> Solution
 playSpecific = foldr run
@@ -157,7 +157,7 @@ performSearch sil step@(Step { trans = Trans { baseSolution = sol }, curLength =
   resetScore <- score sil sol
   performSearch sil step { trans = makeTrans sol, curScore = resetScore, curLength = length $ showSolution sol }
 performSearch sil step = do
-  putStrLn $ " ;; score = " ++ (show $ curScore step) ++ ", " ++ (show $ stepsLeft step) ++ " left, sol length = " ++ (show $ curLength step)
+  -- putStrLn $ " ;; score = " ++ (show $ curScore step) ++ ", " ++ (show $ stepsLeft step) ++ " left, sol length = " ++ (show $ curLength step)
   tryTrans <- randomAction 1.0 $ trans step
   let (trySol, tryLen) = play tryTrans
   tryScore <- score sil trySol
@@ -183,7 +183,9 @@ performSearch sil step = do
 
 stopSearch :: Step -> IO Solution
 stopSearch (Step { stepsLeft = stepsLeft, best = (bestTrans, bestScore), curLength = len }) = do
-  putStrLn $ " ;; Done with best score = " ++ (show bestScore) ++ ", " ++ (show stepsLeft) ++ " steps left, solution length = " ++ (show len)
+  -- putStrLn $ " ;; Done with best score = " ++ (show bestScore) ++ ", " ++ (show stepsLeft) ++ " steps left, solution length = " ++ (show len)
+  -- putStrLn $ " ;; Fold history length = " ++ (show $ length $ foldHistory bestTrans)
+  -- putStrLn $ " ;; Trans history length = " ++ (show $ length $ transHistory bestTrans)
   return $ fst $ play bestTrans
 
 solverMetropolis :: Problem -> IO Solution
