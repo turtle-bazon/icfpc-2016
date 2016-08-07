@@ -267,7 +267,7 @@ stopSearch (Step { stepsLeft = stepsLeft, best = best }) = do
   return $ fst $ play $ bestTrans best
 
 solverMetropolis :: Problem -> IO Solution
-solverMetropolis = solverMetropolisSteps 128
+solverMetropolis = solverMetropolisSteps 256
 
 solverMetropolisSteps :: Int -> Problem -> IO Solution
 solverMetropolisSteps maxSteps problem =
