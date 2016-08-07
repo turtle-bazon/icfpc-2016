@@ -66,7 +66,7 @@ score' problem solution = unsafePerformIO $ score (silhouette problem) solution
 makeMininalRectangleSolution :: Problem -> Solution
 makeMininalRectangleSolution problem =
     let
-        alpha_steps = 200
+        alpha_steps = 180
         alphas = [i * (toRational pi) / alpha_steps | i <- [0..alpha_steps]]
         --alphas = [0]
         solutions = map (foldMininalRectangleSolution problem) alphas
