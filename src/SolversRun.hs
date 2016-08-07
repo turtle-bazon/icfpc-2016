@@ -26,7 +26,7 @@ solvers = [
           , Solver { name = "rotate", solve = solverBBRotate }
           , Solver { name = "metropolis", solve = solverMetropolis }          
           , Solver { name = "multirect", solve = solverMultiRect }
-          , Solver { name = "minirect", solve = solverMinimalRect }
+          -- , Solver { name = "minirect", solve = solverMinimalRect }
           ]
 
 loadFile :: ( [String] -> a ) -> String -> IO a
