@@ -28,10 +28,16 @@ makeProblemModel problem@(Problem {silhouette = polygons, skeleton = skeleton})
 
 instance JSON IndexedPoint where
   readJSON = undefined
-  showJSON IndexedPoint {index = index, srcvertex = Point {px = px, py = py} } = JSArray [JSRational False $ fromIntegral index, JSRational True px, JSRational True py]
+  showJSON IndexedPoint { index = index,
+                          srcvertex = Point {px = px, py = py},
+                          dstvertex = Point {px = px', py = py'} } =
+    JSArray [JSRational False $ fromIntegral index, JSArray [JSRational True px, JSRational True py], JSArray [JSRational True px', JSRational True py']]
 
 instance JSON Solution where
   readJSON = undefined
-  showJSON Solution { points=src, facets=facets } =
-    makeObj [("src", showJSON src),
+  showJSON Solution { points=points, facets=facets } =
+    makeObj [("points", showJSON points),
              ("facets", showJSON facets)]
+
+makeSolutionModel :: Solution -> JSValue
+makeSolutionModel = showJSON
