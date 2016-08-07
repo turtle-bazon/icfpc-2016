@@ -80,23 +80,51 @@ foldPartUp part solution =
           (Point { py = start }, Point { py = end }) = bbox $ dstPoly solution
           foldPos = partSegment part start end
 
+data HistoryLine = History { hindex :: Int, action :: Solution -> Solution }
+
 data Trans = Trans { baseSolution :: Solution
-                   , foldHistory :: [Solution -> Solution]
-                   , transHistory :: [Solution -> Solution]
+                   , foldHistory :: [HistoryLine]
+                   , transHistory :: [HistoryLine]
                    }
 
 makeTrans :: Solution -> Trans
 makeTrans sol =
     Trans { baseSolution = sol, foldHistory = [], transHistory = [] }
 
+nextIndex :: Trans -> Int
+nextIndex (Trans { foldHistory = [], transHistory = [] }) = 0
+nextIndex (Trans { foldHistory = History { hindex = i } : _, transHistory = [] }) = i + 1
+nextIndex (Trans { foldHistory = [], transHistory = History { hindex = i } : _ }) = i + 1
+nextIndex (Trans { foldHistory = History { hindex = ia } : _, transHistory = History { hindex = ib } : _ }) = (max ia ib) + 1
+
+dropRecent :: Trans -> Trans
+dropRecent tr@(Trans { foldHistory = [], transHistory = [] }) = tr
+dropRecent tr@(Trans { foldHistory = _ : rest, transHistory = [] }) = tr { foldHistory = rest }
+dropRecent tr@(Trans { foldHistory = [], transHistory = _ : rest }) = tr { transHistory = rest }
+dropRecent tr@(Trans { foldHistory = History { hindex = ia } : _, transHistory = History { hindex = ib } : rest })
+    | ia < ib = tr { transHistory = rest }
+dropRecent tr@(Trans { foldHistory = _ : rest }) = tr { foldHistory = rest }
+
+dropRecentTimes :: Int -> Trans -> Trans
+dropRecentTimes 0 tr = tr
+dropRecentTimes count tr = dropRecentTimes (count - 1) (dropRecent tr)
+
 play :: Trans -> (Solution, Int)
 play trans = (sol, solutionLength sol)
     where
-      sol = playSpecific (baseSolution trans) $ (transHistory trans) ++ (foldHistory trans)
+      sol = playSpecific (baseSolution trans) $ map action $ (transHistory trans) ++ (foldHistory trans)
 
 playSpecific :: Solution -> [Solution -> Solution] -> Solution
 playSpecific = foldr run
     where run f solution = f solution
+
+rememberFold :: (Solution -> Solution) -> Trans -> Trans
+rememberFold action tr =
+    tr { foldHistory = History { hindex = nextIndex tr, action = action } : (foldHistory tr) }
+
+rememberTrans :: (Solution -> Solution) -> Trans -> Trans
+rememberTrans action tr =
+    tr { transHistory = History { hindex = nextIndex tr, action = action } : (transHistory tr) }
 
 randomAction :: Double -> Trans -> IO Trans
 randomAction variation tr =
@@ -106,32 +134,54 @@ randomAction variation tr =
         choose 0 = do
           point <- randomTranslationPoint variation
           -- putStrLn $ "   ;;; action: translate on " ++ (show point)
-          return $ tr { transHistory = (translate point) : (transHistory tr) }
+          return $ rememberTrans (translate point) tr
         choose 1 = do
           angle <- randomRotationAngle variation
           -- putStrLn $ "   ;;; action: rotate by " ++ (show angle)
-          return $ tr { transHistory = (rotateAroundCenter angle) : (transHistory tr) }
+          return $ rememberTrans (rotateAroundCenter angle) tr
         choose 2 = do
           part <- randomFoldPart variation
           -- putStrLn $ "   ;;; action: fold left by " ++ (show part)
-          return $ tr { foldHistory = (foldPartLeft part) : (foldHistory tr) }
+          return $ rememberFold (foldPartLeft part) tr
         choose 3 = do
           part <- randomFoldPart variation
           -- putStrLn $ "   ;;; action: fold right by " ++ (show part)
-          return $ tr { foldHistory = (foldPartRight part) : (foldHistory tr) }
+          return $ rememberFold (foldPartRight part) tr
         choose 4 = do
           part <- randomFoldPart variation
           -- putStrLn $ "   ;;; action: fold down by " ++ (show part)
-          return $ tr { foldHistory = (foldPartDown part) : (foldHistory tr) }
+          return $ rememberFold (foldPartDown part) tr
         choose 5 = do
           part <- randomFoldPart variation
           -- putStrLn $ "   ;;; action: fold up by " ++ (show part)
-          return $ tr { foldHistory = (foldPartUp part) : (foldHistory tr) }
+          return $ rememberFold (foldPartUp part) tr
         choose _ = error "shoud not get here"
         rotateAroundCenter angle solution =
             rotate (centrifySolution solution) angle solution
 
-data Best = Best { bestTrans :: Trans, bestScore :: Double, bestLength :: Int }
+data Best = Best { bestTrans :: Trans
+                 , bestScore :: Double
+                 , bestLength :: Int
+                 , fallback :: Int
+                 }
+
+fallbackBest :: Silhouette -> Best -> IO (Best, Best)
+fallbackBest sil best@(Best { fallback = 0 }) = return $ (best { fallback = 1 }, best)
+fallbackBest sil best =
+    let
+        rewoundTrans = dropRecentTimes (fallback best) $ bestTrans best
+        (rewoundSol, rewoundLen) = play rewoundTrans
+    in
+      do
+        newScore <- score sil rewoundSol
+        -- putStrLn $ "  ;;; falling back best @ " ++ (show $ fallback best) ++ ": " ++ (show $ bestScore best) ++ " -> " ++ (show newScore)
+        return $ ( best { fallback = (fallback best) + 1 }
+                 , Best { bestTrans = rewoundTrans
+                        , bestScore = newScore
+                        , bestLength = rewoundLen
+                        , fallback = 0
+                        }
+                 )
 
 data Step = Step { trans :: Trans
                  , stepsLeft :: Int
@@ -148,6 +198,7 @@ startSearch sil sol maxSteps = do
                            , best = Best { bestTrans = makeTrans sol
                                          , bestScore = startScore
                                          , bestLength = solLen
+                                         , fallback = 0
                                          }
                            , curScore = startScore
                            , curLength = solLen
@@ -155,15 +206,27 @@ startSearch sil sol maxSteps = do
       where
         solLen = solutionLength sol
 
+fallbackSearch :: Silhouette -> Step -> IO Solution
+fallbackSearch sil step@(Step { stepsLeft = stepsLeft, best = best }) = do
+    (curBest, Best { bestTrans = curTrans, bestScore = curScore, bestLength = curLength }) <- fallbackBest sil best
+    performSearch sil step { stepsLeft = stepsLeft - 1, trans = curTrans, curScore = curScore, curLength = curLength, best = curBest }
+
+describeStep :: Step -> IO ()
+describeStep step =
+    putStrLn (  " ;; score = " ++ (show $ curScore step)
+             ++ " (best = " ++ (show $ bestScore $ best step) ++ "), "
+             ++ (show $ stepsLeft step) ++ " left"
+             ++ ", sol length = " ++ (show $ curLength step)
+             ++ ", best rewind cnt = " ++ (show $ fallback $ best $ step)
+             )
+
 performSearch :: Silhouette -> Step -> IO Solution
 performSearch _ step@(Step { stepsLeft = 0 }) = stopSearch step
 performSearch _ step@(Step { curScore = curScore }) | curScore >= 1 = stopSearch step
-performSearch sil step@(Step { stepsLeft = stepsLeft, best = best, curScore = 0 }) = do
-  performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans best, curScore = bestScore best, curLength = bestLength best }
-performSearch sil step@(Step { stepsLeft = stepsLeft, best = best, curLength = curLength }) | curLength > 5000 = do
-  performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans best, curScore = bestScore best, curLength = bestLength best }
+performSearch sil step@(Step { curScore = 0 }) = fallbackSearch sil step
+performSearch sil step@(Step { stepsLeft = stepsLeft, best = best, curLength = curLength }) | curLength > 5000 = fallbackSearch sil step
 performSearch sil step = do
-  -- putStrLn $ " ;; score = " ++ (show $ curScore step) ++ " (best = " ++ (show $ bestScore $ best step) ++ "), " ++ (show $ stepsLeft step) ++ " left, sol length = " ++ (show $ curLength step)
+  -- describeStep step
   let variance = 1.0 - (curScore step)
   tryTrans <- randomAction variance $ trans step
   let (trySol, tryLen) = play tryTrans
@@ -183,7 +246,11 @@ performSearch sil step = do
             performSearch sil $ step { trans = tryTrans
                                      , curScore = tryScore
                                      , stepsLeft = (stepsLeft step) - 1
-                                     , best = updateBest Best { bestTrans = tryTrans, bestScore = tryScore, bestLength = tryLen }
+                                     , best = updateBest Best { bestTrans = tryTrans
+                                                              , bestScore = tryScore
+                                                              , bestLength = tryLen
+                                                              , fallback = 0
+                                                              }
                                      , curLength = tryLen
                                      }
         acceptCurr _ _ _ =
@@ -194,7 +261,7 @@ performSearch sil step = do
 
 stopSearch :: Step -> IO Solution
 stopSearch (Step { stepsLeft = stepsLeft, best = best }) = do
-  putStrLn $ " ;; Done with best score = " ++ (show $ bestScore best) ++ ", " ++ (show stepsLeft) ++ " steps left, solution length = " ++ (show $ bestLength best)
+  -- putStrLn $ " ;; Done with best score = " ++ (show $ bestScore best) ++ ", " ++ (show stepsLeft) ++ " steps left, solution length = " ++ (show $ bestLength best)
   -- putStrLn $ " ;; Fold history length = " ++ (show $ length $ foldHistory bestTrans)
   -- putStrLn $ " ;; Trans history length = " ++ (show $ length $ transHistory bestTrans)
   return $ fst $ play $ bestTrans best
