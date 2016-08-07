@@ -163,7 +163,7 @@ performSearch sil step@(Step { stepsLeft = stepsLeft, best = best, curScore = 0 
 performSearch sil step@(Step { stepsLeft = stepsLeft, best = best, curLength = curLength }) | curLength > 5000 = do
   performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans best, curScore = bestScore best, curLength = bestLength best }
 performSearch sil step = do
-  -- putStrLn $ " ;; score = " ++ (show $ curScore step) ++ " (best = " ++ (show $ bestScore $ best step) ++ "), " ++ (show $ stepsLeft step) ++ " left, sol length = " ++ (show $ curLength step)
+  putStrLn $ " ;; score = " ++ (show $ curScore step) ++ " (best = " ++ (show $ bestScore $ best step) ++ "), " ++ (show $ stepsLeft step) ++ " left, sol length = " ++ (show $ curLength step)
   let variance = 1.0 - (curScore step)
   tryTrans <- randomAction variance $ trans step
   let (trySol, tryLen) = play tryTrans
