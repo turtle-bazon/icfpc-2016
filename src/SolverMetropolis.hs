@@ -90,7 +90,7 @@ makeTrans sol =
     Trans { baseSolution = sol, foldHistory = [], transHistory = [] }
 
 play :: Trans -> (Solution, Int)
-play trans = (sol, length $ showSolution $ sol)
+play trans = (sol, solutionLength sol)
     where
       sol = playSpecific (baseSolution trans) $ (transHistory trans) ++ (foldHistory trans)
 
@@ -153,7 +153,7 @@ startSearch sil sol maxSteps = do
                            , curLength = solLen
                            }
       where
-        solLen = length $ showSolution sol
+        solLen = solutionLength sol
 
 performSearch :: Silhouette -> Step -> IO Solution
 performSearch _ step@(Step { stepsLeft = 0 }) = stopSearch step
