@@ -3,6 +3,7 @@ module Show where
 import Data.Ratio
 import Data.List
 import Data.Maybe
+import Data.Char
 import Common
 
 showNumber :: Number -> String
@@ -29,3 +30,6 @@ showSolution sol =
           showDst = showList $ map (showPoint . dstvertex) $ points sol
           showList = foldr (\v acc -> v ++ "\n" ++ acc) ""
           showTotal l = (show $ length l) ++ "\n"
+
+solutionLength :: Solution -> Int
+solutionLength = length . (filter (not . isSpace)) . showSolution
