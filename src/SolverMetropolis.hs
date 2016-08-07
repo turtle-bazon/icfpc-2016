@@ -41,6 +41,43 @@ randomRotationAngle variation = do
   delta <- randomRIO (-variation, variation)
   return $ pi * 2 * delta
 
+randomFoldPart :: Float -> IO Number
+randomFoldPart variation = do
+  part <- randomRIO (-variation, variation)
+  return $ approx part
+
+partSegment :: Number -> Number -> Number -> Number
+partSegment part start end =
+    start + part * (end - start)
+
+foldPartLeft :: Number -> Solution -> Solution
+foldPartLeft part solution =
+    foldLeft foldPos solution
+        where
+          (Point { px = start }, Point { px = end }) = bbox $ dstPoly solution
+          foldPos = partSegment (1 - part) start end
+
+foldPartRight :: Number -> Solution -> Solution
+foldPartRight part solution =
+    foldRight foldPos solution
+        where
+          (Point { px = start }, Point { px = end }) = bbox $ dstPoly solution
+          foldPos = partSegment part start end
+
+foldPartDown :: Number -> Solution -> Solution
+foldPartDown part solution =
+    foldDown foldPos solution
+        where
+          (Point { py = start }, Point { py = end }) = bbox $ dstPoly solution
+          foldPos = partSegment (1 - part) start end
+
+foldPartUp :: Number -> Solution -> Solution
+foldPartUp part solution =
+    foldUp foldPos solution
+        where
+          (Point { py = start }, Point { py = end }) = bbox $ dstPoly solution
+          foldPos = partSegment part start end
+
 data Trans = Trans { baseSolution :: Solution
                    , foldHistory :: [Solution -> Solution]
                    , transHistory :: [Solution -> Solution]
@@ -51,14 +88,15 @@ makeTrans sol =
     Trans { baseSolution = sol, foldHistory = [], transHistory = [] }
 
 play :: Trans -> Solution
-play trans =
-    foldr run (baseSolution trans) $ (foldHistory trans) ++ (transHistory trans)
-        where
-          run f solution = f solution
+play trans = playSpecific (baseSolution trans) $ (foldHistory trans) ++ (transHistory trans)
+
+playSpecific :: Solution -> [Solution -> Solution] -> Solution
+playSpecific = foldr run
+    where run f solution = f solution
 
 randomAction :: Float -> Trans -> IO Trans
 randomAction variation tr =
-  randomRIO (0, 1) >>= choose
+  randomRIO (0, 5) >>= choose
       where
         choose :: Int -> IO Trans
         choose 0 = do
@@ -67,6 +105,18 @@ randomAction variation tr =
         choose 1 = do
           angle <- randomRotationAngle variation
           return $ tr { transHistory = (rotateAroundCenter angle) : (transHistory tr) }
+        choose 2 = do
+          part <- randomFoldPart variation
+          return $ tr { foldHistory = (foldPartLeft part) : (foldHistory tr) }
+        choose 3 = do
+          part <- randomFoldPart variation
+          return $ tr { foldHistory = (foldPartRight part) : (foldHistory tr) }
+        choose 4 = do
+          part <- randomFoldPart variation
+          return $ tr { foldHistory = (foldPartDown part) : (foldHistory tr) }
+        choose 5 = do
+          part <- randomFoldPart variation
+          return $ tr { foldHistory = (foldPartUp part) : (foldHistory tr) }
         choose _ = error "shoud not get here"
         rotateAroundCenter angle solution =
             rotate (centrifySolution solution) angle solution
