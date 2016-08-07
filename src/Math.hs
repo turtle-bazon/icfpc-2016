@@ -315,25 +315,31 @@ createVerticalLeftFacets x points newPoints newFacets (currentFacet:restFacets) 
          createVerticalLeftFacets x points freshPoints (currentFacet : newFacets) restFacets
   else createVerticalLeftFacets x points newPoints (currentFacet : newFacets) restFacets
 
+getReplacement :: [(PointIndex, PointIndex)] -> PointIndex -> PointIndex
+getReplacement replacements value = snd $ fromJust (find (\(is, ir) -> is == value) replacements)
+
+getReplacementPoint :: [(PointIndex, PointIndex)] -> IndexedPoint -> IndexedPoint
+getReplacementPoint replacements ip =
+  IndexedPoint { index = getReplacement replacements (index ip)
+               , srcvertex = srcvertex ip
+               , dstvertex = dstvertex ip }
+
 normalizeSolutionDev :: [(PointIndex, [PointIndex])] -> Solution -> Solution
-normalizeSolutionDev [] solution =
-  solution
+normalizeSolutionDev [] (Solution points facets) =
+  let replacements = zip (sort $ map index points) [0..]
+  in Solution { points = map (getReplacementPoint replacements) points
+              , facets = map (\curFacet -> map (getReplacement replacements) curFacet) facets}
 normalizeSolutionDev ((baseInd, []):restDuplicates) solution =
   normalizeSolutionDev restDuplicates solution
 normalizeSolutionDev ((baseInd, (curDup:restDups)):restDuplicates) (Solution points facets) =
   let pointsWithoutDup = filter (\ip -> curDup /= (index ip)) points
-      replacements = (curDup, baseInd) : (map (\ind -> if ind > curDup then (ind, ind - 1) else (ind, ind)) $ map index pointsWithoutDup)
-      solutionWithoutDup = Solution { points = map (\ip -> let curInd = (index ip)
-                                                               repInd = snd $ fromJust (find (\(is, ir) -> is == curInd) replacements)
-                                                           in IndexedPoint { index = repInd
-                                                                           , srcvertex = srcvertex ip
-                                                                           , dstvertex = dstvertex ip}) pointsWithoutDup
-                                    , facets = map (\curFacet -> map (\ind -> snd $ fromJust (find (\(is, ir) -> is == ind) replacements)) curFacet) facets}
+      solutionWithoutDup = Solution { points = pointsWithoutDup
+                                    , facets = map (\curFacet -> map (\ind -> if ind == curDup then baseInd else ind) curFacet) facets}
   in normalizeSolutionDev (((baseInd, restDups)):restDuplicates) solutionWithoutDup
 
 normalizeSolution :: Solution -> Solution
 normalizeSolution (Solution points facets) =
-  let groupedPoints = groupBy (\pa pb -> (srcvertex pa) == (srcvertex pb)) $ sortBy (\pa pb -> compare (srcvertex pa) (srcvertex pb)) points
+  let groupedPoints = groupBy (\pa pb -> (srcvertex pa) == (srcvertex pb)) $ sortOn srcvertex points
       duplicates = map (\l -> let (x:xs) = (sort l)
                               in (x, xs)) $ filter (\v -> (length v) > 1) $ map (\plist -> (map (\ip -> (index ip)) plist)) groupedPoints
   in normalizeSolutionDev duplicates (Solution { points = sortOn index points
@@ -371,6 +377,23 @@ foldLeft x (Solution points facets) =
   in normalizeSolution Solution { points = newPoints
                                 , facets = newFacets}
 
+reflectPointByEdge :: Edge -> Point -> Point
+reflectPointByEdge ((Point x1 y1), (Point x2 y2)) =
+  let
+    dx = x2 - x1
+    dy = y2 - y1
+    n = dx
+    m = dy
+    b = dx * y1 - dy * x1
+    pivot = Point { px = 0, py = b }
+    toOrigin = translatePoint (negatePoint pivot)
+    fromOrigin = translatePoint pivot
+    reflect p = let k = 1 / (n * n + m * m)
+                in Point { px = k * ((px p) * (1 - m * m) + (py p) * 2 *m)
+                         , py = k * ((px p) * 2 * m + (py p) * (m * m - 1))
+                         }
+  in fromOrigin . reflect . toOrigin
+  
 foldByEdge :: Edge -> Solution -> Solution
 foldByEdge edge solution =
     undefined
