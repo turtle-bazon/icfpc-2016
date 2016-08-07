@@ -147,6 +147,16 @@ breakEdge edge1@(p1, p2) edge2 = case findIntersection edge1 edge2 of
                              Nothing -> Right edge1
                              Just x ->  Left ((p1, x), (x, p2))
 
+{-- Function filters out points on one side of a line defined by two points. Side is
+    chosen with regards to points number - smaller number to fold is preferred --}
+filterPointsByLine :: (Point, Point) -> [Point] -> [Point]
+filterPointsByLine (Point x1 y1, Point x2 y2) points =
+  let check (Point x y)         = ((x2 - x1) * (y - y1) - (y2 - y1) * (x - x1)) > 0
+      (leftPoints, rightPoints) = partition check points
+      leftSize                  = length leftPoints
+      rightSize                 = length rightPoints
+  in if leftSize > rightSize then leftPoints else rightPoints
+
 translate :: Point -> Solution -> Solution
 translate delta solution =
     solution { points = map translateDst $ points solution }
