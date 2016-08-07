@@ -1,5 +1,6 @@
 module SolverBBRotate (solverBBRotate) where
 
+import qualified Data.Number.FixedFunctions as FF
 import Common
 import Math
 import SolverBBSimple
@@ -30,7 +31,7 @@ makeRectangleSolution problem =
         ((x1,y1),(x2,y2)) = bigestDistance $ points
         alpha = case x1 - x2 of
                   0 -> 0
-                  other -> atan $ fromRational $ abs $ (y1-y2)/other
+                  other -> FF.atan epsilonN $ abs $ (y1-y2)/other
         rotated = map (rotatePoint (Point 0 0) (-alpha)) $ map (\(x,y) -> Point x y) points
 
         minX = minimum $ map px rotated

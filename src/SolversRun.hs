@@ -69,3 +69,14 @@ run :: String -> String -> IO ()
 run problemsDir outputDir = do
   problems <- loadAllProblems problemsDir
   mapM_ (runProblem outputDir) problems
+
+runSingle :: String -> String -> IO ()
+runSingle solverName problemFile = do
+  problem <- loadProblem problemFile
+  runSingleSolver problem $ filter (\Solver { name = name } -> name == solverName) solvers
+    where
+      runSingleSolver problem ( solver : _ ) = do
+        rating <- rateSolver problem solver
+        putStrLn $ showSolution $ solution rating
+        putStrLn $ "Score = " ++ (show $ similarity rating);
+      runSingleSolver _ _  = putStrLn $ "No solver named '" ++ solverName ++ "' found"

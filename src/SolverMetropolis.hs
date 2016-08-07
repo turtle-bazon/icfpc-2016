@@ -1,5 +1,6 @@
 module SolverMetropolis (solverMetropolis) where
 
+import qualified Data.Number.FixedFunctions as FF
 import System.Random
 import Common
 import Math
@@ -30,18 +31,18 @@ centrify problem solution =
           problemCenter = centrifyPos problem
           solutionDelta = negatePoint $ centrifySolution solution
 
-randomTranslationPoint :: Float -> IO Point
+randomTranslationPoint :: Double -> IO Point
 randomTranslationPoint variation = do
   deltaX <- randomRIO (-variation, variation)
   deltaY <- randomRIO (-variation, variation)
   return $ Point { px = approx deltaX, py = approx deltaY }
 
-randomRotationAngle :: Float -> IO Float
+randomRotationAngle :: Double -> IO Number
 randomRotationAngle variation = do
   delta <- randomRIO (-variation, variation)
-  return $ pi * 2 * delta
+  return $ approx $ pi * 2 * delta
 
-randomFoldPart :: Float -> IO Number
+randomFoldPart :: Double -> IO Number
 randomFoldPart variation = do
   part <- randomRIO (0, variation)
   return $ approx $ part / 2
@@ -94,7 +95,7 @@ playSpecific :: Solution -> [Solution -> Solution] -> Solution
 playSpecific = foldr run
     where run f solution = f solution
 
-randomAction :: Float -> Trans -> IO Trans
+randomAction :: Double -> Trans -> IO Trans
 randomAction variation tr =
   randomRIO (0, 5) >>= choose
       where
