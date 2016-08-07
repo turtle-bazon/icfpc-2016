@@ -179,7 +179,7 @@ ksort($solutions);
 
 $skipResubmit = true;
 if (!empty(getenv('RESUBMIT'))) {
-  $skipResubmit = (bool)getenv('RESUBMIT');
+  $skipResubmit = !((bool)getenv('RESUBMIT'));
 }
 
 $dryRun = false;
