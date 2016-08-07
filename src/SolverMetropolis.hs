@@ -155,7 +155,11 @@ randomAction variation tr =
         rotateAroundCenter angle solution =
             rotate (centrifySolution solution) angle solution
 
-data Best = Best { bestTrans :: Trans, bestScore :: Double, bestLength :: Int }
+data Best = Best { bestTrans :: Trans
+                 , bestScore :: Double
+                 , bestLength :: Int
+                 , fallback :: Int
+                 }
 
 data Step = Step { trans :: Trans
                  , stepsLeft :: Int
@@ -172,6 +176,7 @@ startSearch sil sol maxSteps = do
                            , best = Best { bestTrans = makeTrans sol
                                          , bestScore = startScore
                                          , bestLength = solLen
+                                         , fallback = 0
                                          }
                            , curScore = startScore
                            , curLength = solLen
@@ -207,7 +212,11 @@ performSearch sil step = do
             performSearch sil $ step { trans = tryTrans
                                      , curScore = tryScore
                                      , stepsLeft = (stepsLeft step) - 1
-                                     , best = updateBest Best { bestTrans = tryTrans, bestScore = tryScore, bestLength = tryLen }
+                                     , best = updateBest Best { bestTrans = tryTrans
+                                                              , bestScore = tryScore
+                                                              , bestLength = tryLen
+                                                              , fallback = 0
+                                                              }
                                      , curLength = tryLen
                                      }
         acceptCurr _ _ _ =
