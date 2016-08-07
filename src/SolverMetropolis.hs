@@ -184,13 +184,15 @@ startSearch sil sol maxSteps = do
       where
         solLen = length $ showSolution sol
 
+fallbackSearch :: Silhouette -> Step -> IO Solution
+fallbackSearch sil step@(Step { stepsLeft = stepsLeft, best = best }) =
+    performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans best, curScore = bestScore best, curLength = bestLength best }
+
 performSearch :: Silhouette -> Step -> IO Solution
 performSearch _ step@(Step { stepsLeft = 0 }) = stopSearch step
 performSearch _ step@(Step { curScore = curScore }) | curScore >= 1 = stopSearch step
-performSearch sil step@(Step { stepsLeft = stepsLeft, best = best, curScore = 0 }) = do
-  performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans best, curScore = bestScore best, curLength = bestLength best }
-performSearch sil step@(Step { stepsLeft = stepsLeft, best = best, curLength = curLength }) | curLength > 5000 = do
-  performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans best, curScore = bestScore best, curLength = bestLength best }
+performSearch sil step@(Step { curScore = 0 }) = fallbackSearch sil step
+performSearch sil step@(Step { stepsLeft = stepsLeft, best = best, curLength = curLength }) | curLength > 5000 = fallbackSearch sil step
 performSearch sil step = do
   putStrLn $ " ;; score = " ++ (show $ curScore step) ++ " (best = " ++ (show $ bestScore $ best step) ++ "), " ++ (show $ stepsLeft step) ++ " left, sol length = " ++ (show $ curLength step)
   let variance = 1.0 - (curScore step)
