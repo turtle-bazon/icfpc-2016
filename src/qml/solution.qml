@@ -195,6 +195,50 @@ Window {
                         ctx.fill();
                     }
 
+                    /* Problem display */
+                    var problem = JSON.parse(problemJSON);
+                    /* Problem polygons */
+                    var i = 0; var polygons = problem.polygons;
+                    for (i = 0; i < polygons.length; i++) {
+                        switch (polygons[i].type) {
+                        case 'fill':
+                            ctx.strokeStyle = 'red';
+                            ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                            break;
+                        case 'hole':
+                            ctx.strokeStyle = 'yellow';
+                            ctx.fillStyle = 'rgba(0, 255, 255, 0.7)';
+                            break;
+                        }
+
+                        var points = polygons[i].points;
+                        if (points.length > 0) {
+                            ctx.beginPath();
+
+                            ctx.moveTo(points[0][0] - dx, points[0][1] - dy);
+
+                            var j = 1;
+                            for (j = 1; j < points.length; j++) {
+                                ctx.lineTo(points[j][0] - dx, points[j][1] - dy);
+                            }
+
+                            ctx.closePath();
+
+                            ctx.fill();
+                            ctx.stroke();
+                        }
+                    }
+                    /* Skeleton lines */
+                    ctx.strokeStyle = 'rgba(100, 100, 100, 0.8)';
+                    for (i = 0; i < problem.skeleton.length; i++) {
+                        var line = problem.skeleton[i];
+                        ctx.moveTo(line[0][0] - dx, line[0][1] - dy);
+                        ctx.lineTo(line[1][0] - dx, line[1][1] - dy);
+                        ctx.closePath();
+                        ctx.stroke();
+                    }
+
+
                     ctx.restore();
                 }
             }
