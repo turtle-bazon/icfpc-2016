@@ -105,6 +105,10 @@ dropRecent tr@(Trans { foldHistory = History { hindex = ia } : _, transHistory =
     | ia < ib = tr { transHistory = rest }
 dropRecent tr@(Trans { foldHistory = _ : rest }) = tr { foldHistory = rest }
 
+dropRecentTimes :: Int -> Trans -> Trans
+dropRecentTimes 0 tr = tr
+dropRecentTimes count tr = dropRecentTimes (count - 1) (dropRecent tr)
+
 play :: Trans -> (Solution, Int)
 play trans = (sol, length $ showSolution $ sol)
     where
@@ -161,6 +165,24 @@ data Best = Best { bestTrans :: Trans
                  , fallback :: Int
                  }
 
+fallbackBest :: Silhouette -> Best -> IO (Best, Best)
+fallbackBest sil best@(Best { fallback = 0 }) = return $ (best { fallback = 1 }, best)
+fallbackBest sil best =
+    let
+        rewoundTrans = dropRecentTimes (fallback best) $ bestTrans best
+        (rewoundSol, rewoundLen) = play rewoundTrans
+    in
+      do
+        newScore <- score sil rewoundSol
+        -- putStrLn $ "  ;;; falling back best @ " ++ (show $ fallback best) ++ ": " ++ (show $ bestScore best) ++ " -> " ++ (show newScore)
+        return $ ( best { fallback = (fallback best) + 1 }
+                 , Best { bestTrans = rewoundTrans
+                        , bestScore = newScore
+                        , bestLength = rewoundLen
+                        , fallback = 0
+                        }
+                 )
+
 data Step = Step { trans :: Trans
                  , stepsLeft :: Int
                  , best :: Best
@@ -185,8 +207,9 @@ startSearch sil sol maxSteps = do
         solLen = length $ showSolution sol
 
 fallbackSearch :: Silhouette -> Step -> IO Solution
-fallbackSearch sil step@(Step { stepsLeft = stepsLeft, best = best }) =
-    performSearch sil step { stepsLeft = stepsLeft - 1, trans = bestTrans best, curScore = bestScore best, curLength = bestLength best }
+fallbackSearch sil step@(Step { stepsLeft = stepsLeft, best = best }) = do
+    (curBest, Best { bestTrans = curTrans, bestScore = curScore, bestLength = curLength }) <- fallbackBest sil best
+    performSearch sil step { stepsLeft = stepsLeft - 1, trans = curTrans, curScore = curScore, curLength = curLength, best = curBest }
 
 performSearch :: Silhouette -> Step -> IO Solution
 performSearch _ step@(Step { stepsLeft = 0 }) = stopSearch step
