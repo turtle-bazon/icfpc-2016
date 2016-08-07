@@ -211,13 +211,22 @@ fallbackSearch sil step@(Step { stepsLeft = stepsLeft, best = best }) = do
     (curBest, Best { bestTrans = curTrans, bestScore = curScore, bestLength = curLength }) <- fallbackBest sil best
     performSearch sil step { stepsLeft = stepsLeft - 1, trans = curTrans, curScore = curScore, curLength = curLength, best = curBest }
 
+describeStep :: Step -> IO ()
+describeStep step =
+    putStrLn (  " ;; score = " ++ (show $ curScore step)
+             ++ " (best = " ++ (show $ bestScore $ best step) ++ "), "
+             ++ (show $ stepsLeft step) ++ " left"
+             ++ ", sol length = " ++ (show $ curLength step)
+             ++ ", best rewind cnt = " ++ (show $ fallback $ best $ step)
+             )
+
 performSearch :: Silhouette -> Step -> IO Solution
 performSearch _ step@(Step { stepsLeft = 0 }) = stopSearch step
 performSearch _ step@(Step { curScore = curScore }) | curScore >= 1 = stopSearch step
 performSearch sil step@(Step { curScore = 0 }) = fallbackSearch sil step
 performSearch sil step@(Step { stepsLeft = stepsLeft, best = best, curLength = curLength }) | curLength > 5000 = fallbackSearch sil step
 performSearch sil step = do
-  putStrLn $ " ;; score = " ++ (show $ curScore step) ++ " (best = " ++ (show $ bestScore $ best step) ++ "), " ++ (show $ stepsLeft step) ++ " left, sol length = " ++ (show $ curLength step)
+  -- describeStep step
   let variance = 1.0 - (curScore step)
   tryTrans <- randomAction variance $ trans step
   let (trySol, tryLen) = play tryTrans
