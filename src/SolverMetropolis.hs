@@ -1,4 +1,4 @@
-module SolverRandomSearch (solverRandomSearch) where
+module SolverMetropolis (solverMetropolis) where
 
 import System.Random
 import Common
@@ -87,9 +87,9 @@ stopSearch stepsLeft (solution, score) = do
   putStrLn $ " ;; Searching stops with best score = " ++ (show score) ++ ", " ++ (show stepsLeft) ++ " steps left"
   return solution
 
-solverRandomSearch :: Problem -> IO Solution
-solverRandomSearch = solverRandomSearchSteps 100
+solverMetropolis :: Problem -> IO Solution
+solverMetropolis = solverMetropolisSteps 128
 
-solverRandomSearchSteps :: Int -> Problem -> IO Solution
-solverRandomSearchSteps maxSteps problem =
+solverMetropolisSteps :: Int -> Problem -> IO Solution
+solverMetropolisSteps maxSteps problem =
     startSearch (silhouette problem) (centrify problem initSolution) maxSteps
