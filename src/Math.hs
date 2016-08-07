@@ -195,10 +195,20 @@ isUpper2Q x y point =
   isPointLeft ( Point { px = x, py = y}
               , Point { px = x + 1, py = y - 1}) point
 
+isUpper2QWeak :: Number -> Number -> Point -> Bool
+isUpper2QWeak x y point =
+  isPointLeftWeak ( Point { px = x, py = y}
+                  , Point { px = x + 1, py = y - 1}) point
+
 isLower2Q :: Number -> Number -> Point -> Bool
 isLower2Q x y point =
   isPointRight ( Point { px = x, py = y}
                , Point { px = x + 1, py = y - 1}) point
+
+isLower2QWeak :: Number -> Number -> Point -> Bool
+isLower2QWeak x y point =
+  isPointRightWeak ( Point { px = x, py = y}
+                   , Point { px = x + 1, py = y - 1}) point
 
 isUpper3Q :: Number -> Number -> Point -> Bool
 isUpper3Q x y (Point px py) =
@@ -266,7 +276,7 @@ isEdgeCrossing1Q x y (p1, p2) =
 isEdgeCrossing2Q :: Number -> Number -> (IndexedPoint, IndexedPoint) -> Bool
 isEdgeCrossing2Q x y (p1, p2) =
   let facetXYs = map dstvertex [p1, p2] 
-      hasPointsUpper = or $ map (isUpper2Q x y) facetXYs
+      hasPointsUpper = or $ map (isUpper2QWeak x y) facetXYs
       hasPointsLower = or $ map (isLower2Q x y) facetXYs
   in hasPointsUpper && hasPointsLower
 
@@ -422,9 +432,23 @@ isPointLeft ((Point x1 y1), (Point x2 y2)) (Point px py) =
     dx = x2 - x1
     dy = y2 - y1              
 
+isPointLeftWeak :: Edge -> Point-> Bool
+isPointLeftWeak ((Point x1 y1), (Point x2 y2)) (Point px py) =
+  dy * (px - x1) <= dx * (py - y1)
+  where
+    dx = x2 - x1
+    dy = y2 - y1              
+
 isPointRight :: Edge -> Point-> Bool
 isPointRight ((Point x1 y1), (Point x2 y2)) (Point px py) =
   dy * (px - x1) > dx * (py - y1)
+  where
+    dx = x2 - x1
+    dy = y2 - y1              
+
+isPointRightWeak :: Edge -> Point-> Bool
+isPointRightWeak ((Point x1 y1), (Point x2 y2)) (Point px py) =
+  dy * (px - x1) >= dx * (py - y1)
   where
     dx = x2 - x1
     dy = y2 - y1              
@@ -706,10 +730,10 @@ normalizeSolutionDev ((baseInd, (curDup:restDups)):restDuplicates) (Solution poi
   let pointsWithoutDup = filter (\ip -> curDup /= (index ip)) points
       solutionWithoutDup = Solution { points = pointsWithoutDup
                                     , facets = map (\curFacet ->
-                                                     map (\ind ->
-                                                           if ind == curDup
-                                                           then baseInd
-                                                           else ind) curFacet) facets}
+                                                     nub (map (\ind ->
+                                                                if ind == curDup
+                                                                then baseInd
+                                                                else ind) curFacet)) facets}
   in normalizeSolutionDev (((baseInd, restDups)):restDuplicates) solutionWithoutDup
 
 normalizeSolution :: Solution -> Solution
