@@ -58,6 +58,8 @@ Window {
                 anchors.fill: parent;
                 anchors.margins: 20;
                 onPaint : {
+                    var model = JSON.parse(modelJSON);
+
                     var ctx = getContext("2d")
                     ctx.save();
 
@@ -66,7 +68,11 @@ Window {
 
                     var factor = Math.sqrt(width * width + height * height);
 
-                    var model = JSON.parse(modelJSON);
+                    /* Make both src and dst be in the same scale */
+                    /* var probWidth = Math.abs(model.dstBBox[0][0] - model.dstBBox[1][0]); */
+                    /* var probHeight = Math.abs(model.dstBBox[0][1] - model.dstBBox[1][1]); */
+                    /* var figureFactor = Math.max(probWidth, probHeight); */
+                    /* ctx.scale(1.0 / figureFactor, 1.0/figureFactor); */
 
                     var points = model.points;
                     var facets = model.facets;
@@ -144,6 +150,8 @@ Window {
                 anchors.fill: parent;
                 anchors.margins: 20;
                 onPaint : {
+                    var model = JSON.parse(modelJSON);
+
                     var ctx = getContext("2d")
                     ctx.save();
 
@@ -152,7 +160,14 @@ Window {
 
                     var factor = Math.sqrt(width * width + height * height);
 
-                    var model = JSON.parse(modelJSON);
+                    /* Start point for problem */
+                    var dx = model.dstBBox[0][0];
+                    var dy = model.dstBBox[0][1];
+
+                    var probWidth = Math.abs(model.dstBBox[0][0] - model.dstBBox[1][0]);
+                    var probHeight = Math.abs(model.dstBBox[0][1] - model.dstBBox[1][1]);
+                    var figureFactor = Math.max(probWidth, probHeight);
+                    ctx.scale(1.0 / figureFactor, 1.0/figureFactor);
 
                     var points = model.points;
                     var facets = model.facets;
@@ -168,12 +183,12 @@ Window {
 
                         var pointIdx = facet[0];
                         var point = points[pointIdx][2];
-                        ctx.moveTo(point[0], point[1]);
+                        ctx.moveTo(point[0] - dx, point[1] - dy);
                         var j;
                         for (j = 1; j < facet.length; j++) {
                             pointIdx = facet[j];
                             point = points[pointIdx][2];
-                            ctx.lineTo(point[0], point[1]);
+                            ctx.lineTo(point[0] - dx, point[1] - dy);
                         }
                         ctx.closePath();
                         ctx.stroke();

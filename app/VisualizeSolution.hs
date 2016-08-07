@@ -15,8 +15,9 @@ main :: IO ()
 main = do
     solutionData <- getContents
     solution <- return $ parseSolution $ lines solutionData
-    state <- newIORef $ T.pack $ encode $ solution
-    -- putStrLn $ encode solution
+    model <- return $ encode $ makeSolutionModel solution
+    state <- newIORef $ T.pack $ model
+    -- putStrLn model
     clazz <- newClass [
       defPropertyConst' "modelJSON" (\_ -> readIORef state)
       ]

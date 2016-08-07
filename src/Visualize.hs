@@ -33,11 +33,8 @@ instance JSON IndexedPoint where
                           dstvertex = Point {px = px', py = py'} } =
     JSArray [JSRational False $ fromIntegral index, JSArray [JSRational True px, JSRational True py], JSArray [JSRational True px', JSRational True py']]
 
-instance JSON Solution where
-  readJSON = undefined
-  showJSON Solution { points=points, facets=facets } =
-    makeObj [("points", showJSON points),
-             ("facets", showJSON facets)]
-
 makeSolutionModel :: Solution -> JSValue
-makeSolutionModel = showJSON
+makeSolutionModel (Solution { points=points, facets=facets }) =
+  makeObj [("points", showJSON points),
+           ("facets", showJSON facets),
+           ("dstBBox", showJSON $ bbox $ map dstvertex points ) ]
