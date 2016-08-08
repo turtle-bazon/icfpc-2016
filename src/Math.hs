@@ -867,21 +867,19 @@ foldLeft x (Solution points facets) =
                                 , facets = newFacets}
 
 reflectPointByEdge :: Edge -> Point -> Point
-reflectPointByEdge ((Point x1 y1), (Point x2 y2)) =
+reflectPointByEdge (p1@(Point x1 y1), (Point x2 y2)) =
   let
     dx = x2 - x1
     dy = y2 - y1
     n = dx
     m = dy
-    b = dx * y1 - dy * x1
-    pivot = Point { px = 0, py = b }
-    toOrigin = translatePoint (negatePoint pivot)
-    fromOrigin = translatePoint pivot
+    toOrigin = translatePoint p1
+    fromOrigin = translatePoint (negatePoint p1)
     reflect p = let k = 1 / (n * n + m * m)
-                in Point { px = k * ((px p) * (1 - m * m) + (py p) * 2 *m)
-                         , py = k * ((px p) * 2 * m + (py p) * (m * m - 1))
+                in Point { px = k * ((px p) * (n * n - m * m) + (py p) * 2 * n * m)
+                         , py = k * ((px p) * 2 * n * m + (py p) * (m * m - n * n))
                          }
-  in fromOrigin . reflect . toOrigin
+  in toOrigin . reflect . fromOrigin
 
 foldByEdge :: Edge -> Solution -> Solution
 foldByEdge edge solution =
